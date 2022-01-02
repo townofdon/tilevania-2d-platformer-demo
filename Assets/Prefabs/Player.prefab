@@ -128,7 +128,7 @@ Rigidbody2D:
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 4
 --- !u!70 &5395492277104861183
 CapsuleCollider2D:
@@ -190,9 +190,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 8
   jumpSpeed: 15.5
-  jumpEarlyTime: 0.2
+  jumpFallMultiplier: 5
+  jumpShortMultiplier: 10
+  jumpEarlyTime: 0.05
   jumpLateTime: 0.05
-  canAirControl: 0
+  canAirControl: 1
   OnJumpEvent:
     m_PersistentCalls:
       m_Calls: []

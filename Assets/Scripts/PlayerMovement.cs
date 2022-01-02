@@ -4,6 +4,12 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Events;
 
+// TO-DO NOTES
+// - Currently, there is not really a min-jump-height applied. The min jump height is the jump amount when a button press takes only one frame.
+//   To achieve a true min-height for a jump, recommend adding a min jump press time that will control whether jump dampening is applied.
+// - Currently, the player jumps again if the jump button is pressed and held while the player is in mid-air. The early jump
+//   mechanic should probably be overhauled. Recommend simply using a raycast and setting an isEarlyJumpPressed bool.
+
 public class PlayerMovement : MonoBehaviour
 {
     [Header("Movement Control")]
@@ -19,13 +25,16 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float jumpFallMultiplier = 2f;
 
     [Tooltip("Multiplier applied to achieve a shorter jump height - applied when player is rising vertically and lets go of the jump button before max height reached")]
-    [SerializeField] private float jumpShortMultiplier = 2f;
+    [SerializeField] private float jumpShortMultiplier = 1.5f;
 
     [Tooltip("How early the player can jump before touching the ground again")]
-    [Range(0, 0.5f)] [SerializeField] private float jumpEarlyTime = 0.2f;
+    [Range(0, 0.5f)] [SerializeField] private float jumpEarlyTime = 0.05f;
 
     [Tooltip("How late the player can jump after leaving a surface")]
     [Range(0, 0.2f)] [SerializeField] private float jumpLateTime = 0.05f;
+
+    [Tooltip("How long the jump button is held by default for short jumps")]
+    [Range(0, 0.5f)] [SerializeField] private float jumpShortTime = 0.2f;
 
     [Tooltip("Whether or not a player can steer while jumping")]
     [SerializeField] private bool canAirControl = true;
@@ -40,15 +49,17 @@ public class PlayerMovement : MonoBehaviour
     Vector2 moveInput;
     bool isRunning = false;
     bool isJumping = false;
-    bool isGroundedRaw = false; // the actual grounded state
-    bool isGrounded = false; // what we will use to determine "grounded" or not
+    bool isGrounded = false;
     bool isJumpPressed = false;
     float jumpEarlyTimeElapsed = 0f;
     float jumpLateTimeElapsed = 0f;
+    float jumpShortTimeElapsed = 0f;
 
     // COMPONENTS
     Rigidbody2D rb;
+    Collider2D col;
     Animator anim;
+    int groundLayerMask;
 
     // ANIMATION STATES - can also use an ENUM
     const string ANIM_PLAYER_IDLE = "PlayerIdle";
@@ -74,6 +85,11 @@ public class PlayerMovement : MonoBehaviour
         anim = GetComponent<Animator>();
         AppIntegrity.AssertPresent(anim);
 
+        col = GetComponent<Collider2D>();
+        AppIntegrity.AssertPresent(col);
+
+        groundLayerMask = LayerMask.GetMask("Ground");
+
         Initialize();
     }
 
@@ -90,17 +106,25 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleMove()
     {
-        Vector2 vel = new Vector2(moveInput.x * moveSpeed, rb.velocity.y);
-        rb.velocity = vel;
+        if (CanMoveX())
+        {
+            rb.velocity = new Vector2(moveInput.x * moveSpeed, rb.velocity.y);
 
-        // Mathf.Epsilon is better than using a hard-coded zero value
-        // see: https://docs.unity3d.com/ScriptReference/Mathf.Epsilon.html
-        isRunning = Mathf.Abs(rb.velocity.x) > Mathf.Epsilon;
+            // Mathf.Epsilon is better than using a hard-coded zero value
+            // see: https://docs.unity3d.com/ScriptReference/Mathf.Epsilon.html
+            isRunning = Mathf.Abs(rb.velocity.x) > Mathf.Epsilon;
 
-        // flip sprite
-        if (isRunning) {
-            transform.localScale = new Vector2(Mathf.Sign(rb.velocity.x), 1f);
+            // flip sprite
+            if (isRunning) {
+                transform.localScale = new Vector2(Mathf.Sign(rb.velocity.x), 1f);
+            }
         }
+    }
+
+    bool CanMoveX() {
+        if (isGrounded) return true;
+        if (canAirControl) return true;
+        return false;
     }
 
     void HandleJump() {
@@ -126,6 +150,9 @@ public class PlayerMovement : MonoBehaviour
             jumpEarlyTimeElapsed = Mathf.Min(jumpEarlyTimeElapsed + Time.fixedDeltaTime, jumpEarlyTime + 1f);
         }
 
+        // increment jump press time elapsed
+        jumpShortTimeElapsed = Mathf.Min(jumpShortTimeElapsed + Time.fixedDeltaTime, jumpShortTime + 1f);
+
         // handle early jump button release (shorter jump)
         if (!isJumpPressed) {
             isJumping = false;
@@ -134,32 +161,16 @@ public class PlayerMovement : MonoBehaviour
         // handle initial jump impulse
         if (shouldJump()) {
             isJumping = true;
+            jumpShortTimeElapsed = 0f;
             jumpEarlyTimeElapsed = jumpEarlyTime + 1f;
             // rb.velocity += new Vector2(0f, jumpSpeed);
             rb.velocity = new Vector2(rb.velocity.x, jumpSpeed);
-            Debug.Log("JUMPING!");
-            Debug.Log("Current vel is: " + rb.velocity.y);
         }
     }
 
     bool checkIsGrounded()
     {
-        // TODO: ADD IS GROUNDED CHECK
-        // bool wasGrounded = isGrounded;
-        // // The player is grounded if a circlecast to the groundcheck position hits anything designated as ground
-        // // This can be done using layers instead but Sample Assets will not overwrite your project settings.
-        // Collider2D[] colliders = Physics2D.OverlapCircleAll(m_GroundCheck.position, k_GroundedRadius, m_WhatIsGround);
-        // for (int i = 0; i < colliders.Length; i++)
-        // {
-        //     if (colliders[i].gameObject != gameObject)
-        //     {
-        //         isGrounded = true;
-        //         if (!wasGrounded)
-        //         OnLandEvent.Invoke();
-        //         return true;
-        //     }
-        // }
-        return true;
+        return col.IsTouchingLayers(groundLayerMask);
     }
 
     bool shouldJump() {
@@ -173,12 +184,17 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleFall() {
         // rising
-        if (rb.velocity.y > 0)
+        if (rb.velocity.y > 0 && !isJumping && jumpShortTimeElapsed >= jumpShortTime)
         {
-
+            rb.velocity += Vector2.up
+                * Physics2D.gravity.y
+                // grav accel constant is per second; multiply by the time slice to get the accel for this frame
+                * Time.fixedDeltaTime
+                // 1 "gravity unit" is already accounted for; subtract one here to make our multiplier easier to reason about => 0 would mean normal gravity
+                * (jumpShortMultiplier - 1f);
         }
         // falling
-        else
+        else if (rb.velocity.y < 0)
         {
             rb.velocity += Vector2.up
                 * Physics2D.gravity.y
