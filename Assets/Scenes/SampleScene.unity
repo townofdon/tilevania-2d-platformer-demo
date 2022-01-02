@@ -22842,7 +22842,7 @@ GameObject:
   - component: {fileID: 1069189495}
   - component: {fileID: 1069189494}
   - component: {fileID: 1069189493}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Platforms Tilemap
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28083,6 +28083,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -3126803720802939360, guid: e7e36771876b35240bf28fad6e723ed4, type: 3}
+      propertyPath: m_CollisionDetection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3249784909086955349, guid: e7e36771876b35240bf28fad6e723ed4, type: 3}
+      propertyPath: canAirControl
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7930864687906758857, guid: e7e36771876b35240bf28fad6e723ed4, type: 3}
       propertyPath: m_RootOrder
       value: 3
