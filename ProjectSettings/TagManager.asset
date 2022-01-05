@@ -3,7 +3,8 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - GroundCheck
   layers:
   - Default
   - TransparentFX
@@ -12,10 +13,10 @@ TagManager:
   - Water
   - UI
   - Ground
-  - 
-  - 
-  - 
-  - 
+  - Ladders
+  - Background
+  - Player
+  - PlatformBouncy
   - 
   - 
   - 
@@ -41,14 +42,20 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: Water
-    uniqueID: 1914422773
-    locked: 0
   - name: Background
     uniqueID: 3952897227
     locked: 0
+  - name: Water
+    uniqueID: 1914422773
+    locked: 0
+  - name: Objects
+    uniqueID: 476683217
+    locked: 0
   - name: Platforms
     uniqueID: 2037845579
+    locked: 0
+  - name: Ladders
+    uniqueID: 3655309353
     locked: 0
   - name: Player
     uniqueID: 3840143577
