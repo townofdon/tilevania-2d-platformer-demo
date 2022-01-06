@@ -9,11 +9,21 @@ using Cinemachine;
 
 public class PlayerMovement : MonoBehaviour
 {
+    [Header("Player Properties")]
+    [Space]
+
+    [SerializeField] float startHealth = 100f;
+    [SerializeField] float timeInvincibleAfterTakingDamage = 1f;
+    [SerializeField] float damagedBlinkRate = 0.1f;
+    [SerializeField] float damagedBlinkOpacity = 0.5f;
+    [SerializeField] Color damagedBlinkColor = Color.red;
+
     [Header("Movement Control")]
     [Space]
     
     [Tooltip("How fast the player moves horizontally")]
     [SerializeField] float moveSpeed = 8f;
+    [SerializeField] float moveSlowdown = 5f;
 
     [Tooltip("How fast the player climbs vertically")]
     [SerializeField] float climbSpeed = 4f;
@@ -50,6 +60,11 @@ public class PlayerMovement : MonoBehaviour
     public UnityEvent OnJumpEvent;
     public UnityEvent OnLandEvent;
 
+    // STATE - GENERAL
+    float health = 100f;
+    bool isAlive;
+    float timeInvincibleAfterTakingDamageElapsed = 0f;
+
     // STATE - MOVEMENT
     int orientationX = 1; // 1 => right, -1 => left
     Vector2 moveInput;
@@ -69,6 +84,7 @@ public class PlayerMovement : MonoBehaviour
     float jumpShortTimeElapsed = 0f;
 
     // COMPONENTS
+    SpriteRenderer spriteRenderer;
     Rigidbody2D rb;
     Collider2D col;
     Animator anim;
@@ -79,10 +95,12 @@ public class PlayerMovement : MonoBehaviour
     int playerLayerMask;
     int groundLayerMask;
     int laddersLayerMask;
+    int enemiesLayerMask;
     float gravityScale;
 
     // ANIMATION STATES - can also use an ENUM
     const string ANIM_PLAYER_IDLE = "PlayerIdle";
+    const string ANIM_PLAYER_DEATH = "PlayerDeath";
     const string ANIM_PLAYER_RUNNING = "PlayerRunning";
     const string ANIM_PLAYER_CLIMBING = "PlayerClimbing";
     const string ANIM_PLAYER_CLIMB_IDLE = "PlayerClimbIdle";
@@ -99,11 +117,39 @@ public class PlayerMovement : MonoBehaviour
         return isClimbing;
     }
 
+    public bool TakeDamage(float amount)
+    {
+        if (timeInvincibleAfterTakingDamageElapsed < timeInvincibleAfterTakingDamage) return false;
+
+        timeInvincibleAfterTakingDamageElapsed = 0;
+        health -= amount;
+
+        Debug.Log("player_damage=" + amount + " health=" + health);
+        if (health <= 0) Die();
+        
+        return true;
+    }
+
+    public void Die()
+    {
+        isAlive = false;
+        rb.gravityScale = gravityScale;
+        rb.freezeRotation = false;
+        // fall over dead
+        rb.AddTorque(1f);
+    }
+
     // PRIVATE METHODS
 
     void Initialize()
     {
         jumpLateTimeElapsed = jumpLateTime + 1f;
+        timeInvincibleAfterTakingDamageElapsed = timeInvincibleAfterTakingDamage + 1f;
+        health = startHealth;
+        isAlive = true;
+        isRunning = false;
+        isJumping = false;
+        isClimbing = false;
     }
 
     void Awake() {
@@ -114,6 +160,9 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         AppIntegrity.AssertPresent(followCam);
+
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        AppIntegrity.AssertPresent(spriteRenderer);
 
         rb = GetComponent<Rigidbody2D>();
         AppIntegrity.AssertPresent(rb);
@@ -133,16 +182,19 @@ public class PlayerMovement : MonoBehaviour
         laddersLayerMask = LayerMask.GetMask("Ladders");
         AppIntegrity.AssertPresent(laddersLayerMask);
 
-        groundCheck = FindChildGameObject(this.gameObject, "GroundCheck");
+        enemiesLayerMask = LayerMask.GetMask("Enemies");
+        AppIntegrity.AssertPresent(enemiesLayerMask);
+
+        groundCheck = Utils.FindChildGameObject(this.gameObject, "GroundCheck");
         AppIntegrity.AssertPresent(groundCheck);
 
-        cameraLeft = FindChildGameObject(this.gameObject, "CameraLeft");
+        cameraLeft = Utils.FindChildGameObject(this.gameObject, "CameraLeft");
         AppIntegrity.AssertPresent(cameraLeft);
 
-        cameraRight = FindChildGameObject(this.gameObject, "CameraRight");
+        cameraRight = Utils.FindChildGameObject(this.gameObject, "CameraRight");
         AppIntegrity.AssertPresent(cameraRight);
 
-        cameraCenter = FindChildGameObject(this.gameObject, "CameraCenter");
+        cameraCenter = Utils.FindChildGameObject(this.gameObject, "CameraCenter");
         AppIntegrity.AssertPresent(cameraCenter);
 
         gravityScale = rb.gravityScale;
@@ -153,10 +205,14 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
         Animate();
+        BlinkWhenDamaged();
+
+        Utils.Elapse(ref timeInvincibleAfterTakingDamageElapsed, Time.deltaTime, timeInvincibleAfterTakingDamage);
     }
 
     void FixedUpdate() {
         HandleMove();
+        HandleSlowdown();
         HandleOrientation();
         HandleClimb();
         HandleJump();
@@ -165,14 +221,40 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleMove()
     {
+        if (!isAlive || timeInvincibleAfterTakingDamageElapsed < 0.1f) return;
+    
         if (CanMoveX())
         {
-            rb.velocity = new Vector2(moveInput.x * moveSpeed, rb.velocity.y);
-
             // Mathf.Epsilon is better than using a hard-coded zero value
             // see: https://docs.unity3d.com/ScriptReference/Mathf.Epsilon.html
-            isRunning = Mathf.Abs(rb.velocity.x) > Mathf.Epsilon;
+            if (Mathf.Abs(moveInput.x) > Mathf.Epsilon)
+            {
+                // rb.velocity = new Vector2(moveInput.x * moveSpeed, rb.velocity.y);
+
+                // only add speed if player is not already moving that direction
+                if (
+                    moveInput.x > 0 && rb.velocity.x < moveSpeed ||
+                    moveInput.x < 0 && rb.velocity.x > -moveSpeed
+                )
+                {
+                    float newSpeed = Mathf.Clamp(rb.velocity.x + moveInput.x * moveSpeed, -moveSpeed, moveSpeed);
+                    rb.velocity = new Vector2(newSpeed, rb.velocity.y);
+                }
+                isRunning = true;
+            }
+            else
+            {
+                isRunning = false;
+            }
         }
+    }
+
+    void HandleSlowdown()
+    {
+        if (isAlive && isRunning || timeInvincibleAfterTakingDamageElapsed < 0.1f) return;
+
+        // add drag to slow down the player since we removed friction
+        rb.velocity = new Vector2(rb.velocity.x - rb.velocity.x * moveSpeed * Time.fixedDeltaTime * (isAlive ? moveSlowdown : 1f), rb.velocity.y);
     }
 
     void HandleOrientation() {
@@ -206,6 +288,8 @@ public class PlayerMovement : MonoBehaviour
     }
 
     void HandleClimb() {
+        if (!isAlive) return;
+
         canClimb = CheckCanClimb();
         bool isClimbBottomReached = isClimbing && isGrounded && moveInput.y < Mathf.Epsilon;
 
@@ -231,13 +315,11 @@ public class PlayerMovement : MonoBehaviour
         } else {
             rb.gravityScale = gravityScale;
         }
-
-        // handle ladder collisions
-        // Physics2D.IgnoreLayerCollision(ToLayer(playerLayerMask), ToLayer(laddersLayerMask), isClimbing);
-        // Physics2D.IgnoreLayerCollision(ToLayer(playerLayerMask), ToLayer(laddersLayerMask));
     }
 
     void HandleJump() {
+        if (!isAlive) return;
+
         // implement coyote (hang) time before disallowing jump
         if (CheckIsGrounded())
         {
@@ -330,7 +412,11 @@ public class PlayerMovement : MonoBehaviour
 
     void Animate()
     {
-        if (isClimbing && isClimbIdle) {
+        if (!isAlive)
+        {
+            nextAnimState = ANIM_PLAYER_DEATH;
+        }
+        else if (isClimbing && isClimbIdle) {
             nextAnimState = ANIM_PLAYER_CLIMB_IDLE;
         }
         else if (isClimbing)
@@ -352,19 +438,23 @@ public class PlayerMovement : MonoBehaviour
         anim.Play(currentAnimState);
     }
 
-    // void OnTriggerEnter2D(Collider2D other) {
-    //     // NOTE - could have also evaluated trigger overlap using Rigidbody2D.IsTouchingLayers
-    //     if (LayerMaskContainsLayer(laddersLayerMask, other.gameObject.layer)) {
-    //         canClimb = true;
-    //     }
-    // }
-
-    // void OnTriggerExit2D(Collider2D other) {
-    //     if (LayerMaskContainsLayer(laddersLayerMask, other.gameObject.layer)) {
-    //         canClimb = false;
-    //         isClimbing = false;
-    //     }
-    // }
+    void BlinkWhenDamaged() {
+        if (timeInvincibleAfterTakingDamageElapsed < timeInvincibleAfterTakingDamage)
+        {
+            if (Utils.shouldBlink(timeInvincibleAfterTakingDamageElapsed, damagedBlinkRate))
+            {
+                spriteRenderer.color = damagedBlinkColor;
+            }
+            else
+            {
+                spriteRenderer.color = new Color(1f, 1f, 1f, damagedBlinkOpacity);
+            }
+        }
+        else
+        {
+            spriteRenderer.color = new Color(1f, 1f, 1f);
+        }
+    }
 
     void OnMove(InputValue value)
     {
@@ -374,35 +464,5 @@ public class PlayerMovement : MonoBehaviour
     void OnJump(InputValue value)
     {
         isJumpPressed = value.isPressed;
-    }
-
-    // 
-    // UTIL METHODS - move these to a static class
-    // 
-
-    // check to see whether a LayerMask contains a layer
-    // see: https://answers.unity.com/questions/50279/check-if-layer-is-in-layermask.html
-    bool LayerMaskContainsLayer(int mask, int layer) {
-        bool contains = ((mask & (1 << layer)) != 0);
-        return contains;
-    }
-
-    // get the layer num from a layermask
-    // see: https://forum.unity.com/threads/get-the-layernumber-from-a-layermask.114553/#post-3021162
-    int ToLayer(int layerMask) {
-        int result = layerMask > 0 ? 0 : 31;
-        while( layerMask > 1 ) {
-            layerMask = layerMask >> 1;
-            result++;
-        }
-        return result;
-    }
-
-    // Get a child game object by name or tag
-    // see: https://answers.unity.com/questions/183649/how-to-find-a-child-gameobject-by-name.html
-    GameObject FindChildGameObject(GameObject fromGameObject, string search) {
-        Transform[] ts = fromGameObject.transform.GetComponentsInChildren<Transform>();
-        foreach (Transform t in ts) if (t.gameObject.name == search || t.gameObject.tag == search) return t.gameObject;
-        return null;
     }
 }

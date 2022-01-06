@@ -224,7 +224,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -454823719
-  m_SortingLayer: 6
+  m_SortingLayer: 7
   m_SortingOrder: 0
   m_Sprite: {fileID: 1902161276, guid: 096e6be406048af41b64342b44137cd3, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -316,7 +316,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1b0389eec95295e4092348125a4e6eb3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  startHealth: 100
+  timeInvincibleAfterTakingDamage: 0.5
+  damagedBlinkRate: 0.1
+  damagedBlinkOpacity: 0.7
+  damagedBlinkColor: {r: 1, g: 0, b: 0, a: 1}
   moveSpeed: 8
+  moveSlowdown: 5
   climbSpeed: 7
   jumpSpeed: 16
   maxFallSpeed: 1.5
