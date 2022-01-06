@@ -19,6 +19,7 @@ public class LadderTop : MonoBehaviour
         AppIntegrity.AssertPresent(edgeCollider);
 
         GameObject player = GameObject.FindGameObjectWithTag("Player");
+        AppIntegrity.AssertPresent(player);
         playerMovement = player.GetComponent<PlayerMovement>();
         AppIntegrity.AssertPresent(playerMovement);
 
