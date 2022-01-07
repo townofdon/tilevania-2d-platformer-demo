@@ -19,7 +19,7 @@ TagManager:
   - Player
   - PlatformBouncy
   - Enemies
-  - 
+  - Hazards
   - 
   - 
   - 
@@ -57,6 +57,9 @@ TagManager:
     locked: 0
   - name: Ladders
     uniqueID: 3655309353
+    locked: 0
+  - name: Hazards
+    uniqueID: 2811021285
     locked: 0
   - name: Enemies
     uniqueID: 3667267229

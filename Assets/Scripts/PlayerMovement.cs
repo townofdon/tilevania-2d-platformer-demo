@@ -96,6 +96,7 @@ public class PlayerMovement : MonoBehaviour
     int groundLayerMask;
     int laddersLayerMask;
     int enemiesLayerMask;
+    int hazardsLayerMask;
     float gravityScale;
 
     // ANIMATION STATES - can also use an ENUM
@@ -184,6 +185,9 @@ public class PlayerMovement : MonoBehaviour
 
         enemiesLayerMask = LayerMask.GetMask("Enemies");
         AppIntegrity.AssertPresent(enemiesLayerMask);
+
+        hazardsLayerMask = LayerMask.GetMask("Hazards");
+        AppIntegrity.AssertPresent(hazardsLayerMask);
 
         groundCheck = Utils.FindChildGameObject(this.gameObject, "GroundCheck");
         AppIntegrity.AssertPresent(groundCheck);
@@ -453,6 +457,16 @@ public class PlayerMovement : MonoBehaviour
         else
         {
             spriteRenderer.color = new Color(1f, 1f, 1f);
+        }
+    }
+
+    void OnTriggerEnter2D(Collider2D other) {
+        if (isAlive && Utils.LayerMaskContainsLayer(hazardsLayerMask, other.gameObject.layer)) {
+            // send player in opposite direction
+            rb.velocity *= -1.5f;
+            rb.velocity += Vector2.up * jumpSpeed * 0.25f;
+            rb.AddTorque(5f);
+            Die();
         }
     }
 
