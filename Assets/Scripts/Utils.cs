@@ -51,15 +51,36 @@ public class Utils
         return result;
     }
 
+    
+    public static bool shouldBlink(float timeElapsed, float rate) {
+        return (timeElapsed / rate % 2f) < 1f;
+    }
+
     // Get a child game object by name or tag
     // see: https://answers.unity.com/questions/183649/how-to-find-a-child-gameobject-by-name.html
-    public static GameObject FindChildGameObject(GameObject fromGameObject, string search) {
-        Transform[] ts = fromGameObject.transform.GetComponentsInChildren<Transform>();
-        foreach (Transform t in ts) if (t.gameObject.name == search || t.gameObject.tag == search) return t.gameObject;
+    public static GameObject FindChild(GameObject parent, string lookup) {
+        Transform[] ts = parent.transform.GetComponentsInChildren<Transform>();
+        foreach (Transform t in ts) if (t.gameObject.name == lookup || t.gameObject.tag == lookup) return t.gameObject;
         return null;
     }
 
-    public static bool shouldBlink(float timeElapsed, float rate) {
-        return (timeElapsed / rate % 2f) < 1f;
+    // Helper method that gets a component and also asserts its presence - useful for early-error pattern
+    // 
+    // USAGE:
+    // ```
+    // Rigidbody2D rb = GetRequiredComponent<Rigiidbody2D>(this);
+    // ```
+    public static T GetRequiredComponent<T>(GameObject gameObject)
+    {
+        T component = gameObject.GetComponent<T>();
+        AppIntegrity.AssertPresent<T>(component);
+        return component;
+    }
+
+    public static GameObject GetRequiredChild(GameObject parent, string lookup)
+    {
+        GameObject child = Utils.FindChild(parent, lookup);
+        AppIntegrity.AssertPresent<GameObject>(child);
+        return child;
     }
 }

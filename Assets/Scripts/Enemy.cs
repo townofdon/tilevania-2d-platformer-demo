@@ -7,6 +7,18 @@ public class Enemy : MonoBehaviour
     [Header("Characteristics")]
     [Space]
 
+    [Tooltip("How much health the enemy has at game start")]
+    [SerializeField] float startHealth = 20f;
+
+    [Tooltip("How long enemy should blink after taking damage")]
+    [SerializeField] float damageBlinkDuration = 0.1f;
+
+    [Tooltip("Rate at which to blink enemy damage")]
+    [SerializeField] float damageBlinkRate = 0.05f;
+
+    [Tooltip("Rate at which to blink enemy damage")]
+    [SerializeField] Color damageBlinkColor = Color.red;
+
     [Tooltip("How much damage the enemy deals the player when the player gets hit")]
     [SerializeField] float attackDamage = 40f;
     
@@ -37,13 +49,16 @@ public class Enemy : MonoBehaviour
     [SerializeField] bool debug = true;
 
     // cached components
-    Rigidbody2D rbPlayer;
-    CapsuleCollider2D capsulePlayer;
-    PlayerMovement playerMovement;
+    SpriteRenderer spriteRenderer;
     Animator animator;
     Rigidbody2D rb;
     PolygonCollider2D polygon;
     CapsuleCollider2D capsule;
+
+    // cached player components
+    PlayerMovement playerMovement;
+    Rigidbody2D rbPlayer;
+    CapsuleCollider2D capsulePlayer;
 
     // cached properties
     Vector3 groundCheck = new Vector3(0f, 0f);
@@ -55,11 +70,45 @@ public class Enemy : MonoBehaviour
     bool isFacingRight = true;
     float turnAroundTimeElapsed = 10f;
     float startWaitTimeElapsed = 0f;
+    float health = 20f;
+    float timeLastDamaged = 0f;
+    Vector2 prevVelocity = Vector2.zero;
+    Vector2 prevPosition = Vector3.zero;
+    float prevAngularVelocity = 0f;
 
-    public void Die() {
+    public void TakeDamage(float amount)
+    {
+        if (!isAlive) return;
+
+        timeLastDamaged = 0f;
+        health -= amount;
+
+        Debug.Log("Enemy damage=" + amount + " health=" + health);
+
+        if (health <= 0) {
+            Die();
+            DeathSpin();
+        }
+
+    }
+
+    public bool IsAlive => isAlive;
+
+    public void Die()
+    {
         isAlive = false;
         animator.speed = 0f;
-        // get squished
+    }
+
+    private void DeathSpin()
+    {
+        rb.velocity = new Vector3(rb.velocity.x, rb.velocity.y + 10f);
+        // turn upside down
+        transform.rotation = new Quaternion(0f, 0f, 90f, 0f);
+    }
+
+    private void Squished()
+    {
         transform.localScale -= new Vector3(0f, 0.6f);
         // we also need to disable the capsule collider since it does not scale down; however a polygon collider does scale down
         polygon.isTrigger = false;
@@ -70,6 +119,7 @@ public class Enemy : MonoBehaviour
     void Start()
     {
         // components
+        spriteRenderer = GetComponent<SpriteRenderer>();
         rb = GetComponent<Rigidbody2D>();
         capsule = GetComponent<CapsuleCollider2D>();
         polygon = GetComponent<PolygonCollider2D>();
@@ -91,11 +141,14 @@ public class Enemy : MonoBehaviour
 
         // initialize
         startWaitTimeElapsed = 0f;
+        timeLastDamaged = damageBlinkDuration + 1f;
         isAlive = true;
+        health = startHealth;
         polygon.isTrigger = true;
         capsule.enabled = true;
 
         // verifications
+        AppIntegrity.AssertPresent(spriteRenderer);
         AppIntegrity.AssertPresent(rb);
         AppIntegrity.AssertPresent(capsule);
         AppIntegrity.AssertPresent(polygon);
@@ -111,12 +164,37 @@ public class Enemy : MonoBehaviour
     void Update()
     {
         HandleMove();
+        BlinkWhenDamaged();
 
         Utils.Elapse(ref turnAroundTimeElapsed, Time.deltaTime, turnAroundTime);
         Utils.Elapse(ref startWaitTimeElapsed, Time.deltaTime, startWaitTime);
+        Utils.Elapse(ref timeLastDamaged, Time.deltaTime, damageBlinkDuration);
+
+        prevVelocity = rb.velocity;
+        prevPosition = transform.position;
+        prevAngularVelocity = rb.angularVelocity;
     }
 
+    // KNOWN ISSUE - enemies get stuck facing each other - I believe this is due to the fact that
+    // they flip after colliding, but the OnCollisionEnter2D event never fires again since their colliders are still touching.
+    // SOLUTION - refactor to perform a collision check on every frame
     void OnCollisionEnter2D(Collision2D other) {
+        if (!isAlive) return;
+
+        if (Utils.LayerMaskContainsLayer(enemiesLayerMask, other.gameObject.layer))
+        {
+            if (!other.gameObject.GetComponent<Enemy>().IsAlive) {
+                // TODO: make this into a utility - would be very useful
+                // see: https://answers.unity.com/questions/55711/cancel-a-collision.html
+                Physics2D.IgnoreCollision(capsule, other.gameObject.GetComponent<CapsuleCollider2D>());
+                Physics2D.IgnoreCollision(capsule, other.gameObject.GetComponent<PolygonCollider2D>());
+                rb.velocity = prevVelocity;
+                rb.angularVelocity = prevAngularVelocity;
+                transform.position = prevPosition + rb.velocity * Time.deltaTime;
+                return;
+            }
+        }
+
         Vector3 contactPoint = other.contacts[0].normal;
         float contactAngle = Vector3.Angle(contactPoint, Vector3.up);
 
@@ -140,6 +218,7 @@ public class Enemy : MonoBehaviour
             if (contactAngle <= topKillAngle)
             {
                 Die();
+                Squished();
                 // player should bounce off of opponent
                 rbPlayer.velocity = Vector3.Reflect(rbPlayer.velocity, Vector3.up);
             }
@@ -216,6 +295,24 @@ public class Enemy : MonoBehaviour
         if (debug) Debug.DrawRay(position, Vector3.down * 0.1f, Color.green);
         RaycastHit2D hit = Physics2D.Raycast(position, Vector2.down, 0.1f, groundLayerMask);
         return hit.collider != null;
+    }
+
+    void BlinkWhenDamaged() {
+        if (timeLastDamaged < damageBlinkDuration)
+        {
+            if (Utils.shouldBlink(timeLastDamaged, damageBlinkRate))
+            {
+                spriteRenderer.color = damageBlinkColor;
+            }
+            else
+            {
+                spriteRenderer.color = new Color(1f, 1f, 1f);
+            }
+        }
+        else
+        {
+            spriteRenderer.color = new Color(1f, 1f, 1f);
+        }
     }
 
 

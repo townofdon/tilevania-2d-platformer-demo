@@ -136,11 +136,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2747534663558960598, guid: 547d7bdb305777943ab0a1c9576c66eb, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 11.94
+      value: 11.32
       objectReference: {fileID: 0}
     - target: {fileID: 2747534663558960598, guid: 547d7bdb305777943ab0a1c9576c66eb, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -9.74
+      value: -9.7
       objectReference: {fileID: 0}
     - target: {fileID: 2747534663558960598, guid: 547d7bdb305777943ab0a1c9576c66eb, type: 3}
       propertyPath: m_LocalPosition.z
@@ -242,7 +242,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2747534663558960598, guid: 547d7bdb305777943ab0a1c9576c66eb, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 10.78
+      value: 9.21
       objectReference: {fileID: 0}
     - target: {fileID: 2747534663558960598, guid: 547d7bdb305777943ab0a1c9576c66eb, type: 3}
       propertyPath: m_LocalPosition.y
@@ -366,11 +366,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2747534663558960598, guid: 547d7bdb305777943ab0a1c9576c66eb, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 8.86
+      value: 5.46
       objectReference: {fileID: 0}
     - target: {fileID: 2747534663558960598, guid: 547d7bdb305777943ab0a1c9576c66eb, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -9.73
+      value: -9.62
       objectReference: {fileID: 0}
     - target: {fileID: 2747534663558960598, guid: 547d7bdb305777943ab0a1c9576c66eb, type: 3}
       propertyPath: m_LocalPosition.z
@@ -545,7 +545,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.6363053, y: -3.9844513, z: 2.385682}
+  m_LocalPosition: {x: -6.1363053, y: -5.9844513, z: 2.385682}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -660,7 +660,7 @@ TilemapRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -342070069
-  m_SortingLayer: 1
+  m_SortingLayer: -9
   m_SortingOrder: -1
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0.016129017, y: 0.016129017, z: 0}
@@ -26299,6 +26299,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6973290345085899571, guid: 27bb7ba3df08c9945b6c52cece25da3e, type: 3}
   m_PrefabInstance: {fileID: 807094331}
   m_PrefabAsset: {fileID: 0}
+--- !u!4 &810970104 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7930864687906758857, guid: e7e36771876b35240bf28fad6e723ed4, type: 3}
+  m_PrefabInstance: {fileID: 7930864688977765738}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &841285936 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2747534663558960598, guid: 547d7bdb305777943ab0a1c9576c66eb, type: 3}
@@ -26627,7 +26632,7 @@ TilemapRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 2037845579
-  m_SortingLayer: 4
+  m_SortingLayer: -6
   m_SortingOrder: 0
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}
@@ -36018,8 +36023,8 @@ MonoBehaviour:
   m_StreamingVersion: 20170927
   m_Priority: 10
   m_StandbyUpdate: 2
-  m_LookAt: {fileID: 0}
-  m_Follow: {fileID: 1958426411}
+  m_LookAt: {fileID: 1958426411}
+  m_Follow: {fileID: 810970104}
   m_Lens:
     FieldOfView: 60
     OrthographicSize: 6.42
@@ -36029,7 +36034,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 1.2719299, y: 1}
+    m_SensorSize: {x: 1.375, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
@@ -36046,7 +36051,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1146196613}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.6363053, y: -3.9844513, z: 2.385682}
+  m_LocalPosition: {x: -6.1363053, y: -5.9844513, z: 2.385682}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -36144,7 +36149,7 @@ TilemapRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -1483946011
-  m_SortingLayer: 6
+  m_SortingLayer: -4
   m_SortingOrder: 0
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}
@@ -36730,7 +36735,7 @@ TilemapRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -639657943
-  m_SortingLayer: 5
+  m_SortingLayer: -5
   m_SortingOrder: 0
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}
@@ -37819,7 +37824,7 @@ TilemapRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1914422773
-  m_SortingLayer: 2
+  m_SortingLayer: -8
   m_SortingOrder: 0
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}
@@ -39857,11 +39862,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2747534663558960598, guid: 547d7bdb305777943ab0a1c9576c66eb, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 7.84
+      value: 3.71
       objectReference: {fileID: 0}
     - target: {fileID: 2747534663558960598, guid: 547d7bdb305777943ab0a1c9576c66eb, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -9.73
+      value: -9.62
       objectReference: {fileID: 0}
     - target: {fileID: 2747534663558960598, guid: 547d7bdb305777943ab0a1c9576c66eb, type: 3}
       propertyPath: m_LocalPosition.z
@@ -39981,11 +39986,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2747534663558960598, guid: 547d7bdb305777943ab0a1c9576c66eb, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 9.84
+      value: 7.39
       objectReference: {fileID: 0}
     - target: {fileID: 2747534663558960598, guid: 547d7bdb305777943ab0a1c9576c66eb, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -9.69
+      value: -9.62
       objectReference: {fileID: 0}
     - target: {fileID: 2747534663558960598, guid: 547d7bdb305777943ab0a1c9576c66eb, type: 3}
       propertyPath: m_LocalPosition.z

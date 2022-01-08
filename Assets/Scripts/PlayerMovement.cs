@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 using Cinemachine;
 
 // TO-DO NOTES
@@ -17,6 +18,12 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] float damagedBlinkRate = 0.1f;
     [SerializeField] float damagedBlinkOpacity = 0.5f;
     [SerializeField] Color damagedBlinkColor = Color.red;
+
+    [Header("Weapons")]
+    [Space]
+
+    [SerializeField] GameObject arrow;
+    [SerializeField] float arrowSpeed = 20f;
 
     [Header("Movement Control")]
     [Space]
@@ -59,6 +66,7 @@ public class PlayerMovement : MonoBehaviour
 
     public UnityEvent OnJumpEvent;
     public UnityEvent OnLandEvent;
+    public UnityEvent OnFireEvent;
 
     // STATE - GENERAL
     float health = 100f;
@@ -92,6 +100,7 @@ public class PlayerMovement : MonoBehaviour
     GameObject cameraLeft;
     GameObject cameraRight;
     GameObject cameraCenter;
+    GameObject gun;
     int playerLayerMask;
     int groundLayerMask;
     int laddersLayerMask;
@@ -120,12 +129,13 @@ public class PlayerMovement : MonoBehaviour
 
     public bool TakeDamage(float amount)
     {
+        if (!isAlive) return false;
         if (timeInvincibleAfterTakingDamageElapsed < timeInvincibleAfterTakingDamage) return false;
 
         timeInvincibleAfterTakingDamageElapsed = 0;
         health -= amount;
 
-        Debug.Log("player_damage=" + amount + " health=" + health);
+        Debug.Log("Player damage=" + amount + " health=" + health);
         if (health <= 0) Die();
         
         return true;
@@ -151,55 +161,46 @@ public class PlayerMovement : MonoBehaviour
         isRunning = false;
         isJumping = false;
         isClimbing = false;
+
+        SpriteRenderer gunSprite = gun.GetComponent<SpriteRenderer>();
+        if (gunSprite)
+        {
+            gunSprite.enabled = false;
+        }
     }
 
     void Awake() {
         if (OnJumpEvent == null) OnJumpEvent = new UnityEvent();
         if (OnLandEvent == null) OnLandEvent = new UnityEvent();
+        if (OnFireEvent == null) OnFireEvent = new UnityEvent();
     }
 
     void Start()
     {
         AppIntegrity.AssertPresent(followCam);
+        AppIntegrity.AssertPresent(arrow);
 
-        spriteRenderer = GetComponent<SpriteRenderer>();
-        AppIntegrity.AssertPresent(spriteRenderer);
+        spriteRenderer = Utils.GetRequiredComponent<SpriteRenderer>(this.gameObject);
+        rb = Utils.GetRequiredComponent<Rigidbody2D>(this.gameObject);
+        anim = Utils.GetRequiredComponent<Animator>(this.gameObject);
+        col = Utils.GetRequiredComponent<Collider2D>(this.gameObject);
 
-        rb = GetComponent<Rigidbody2D>();
-        AppIntegrity.AssertPresent(rb);
-
-        anim = GetComponent<Animator>();
-        AppIntegrity.AssertPresent(anim);
-
-        col = GetComponent<Collider2D>();
-        AppIntegrity.AssertPresent(col);
+        groundCheck = Utils.GetRequiredChild(this.gameObject, "GroundCheck");
+        cameraLeft = Utils.GetRequiredChild(this.gameObject, "CameraLeft");
+        cameraRight = Utils.GetRequiredChild(this.gameObject, "CameraRight");
+        cameraCenter = Utils.GetRequiredChild(this.gameObject, "CameraCenter");
+        gun = Utils.GetRequiredChild(this.gameObject, "Gun");
 
         playerLayerMask = LayerMask.GetMask("Player");
-        AppIntegrity.AssertPresent(playerLayerMask);
-
         groundLayerMask = LayerMask.GetMask("Ground");
-        AppIntegrity.AssertPresent(groundLayerMask);
-
         laddersLayerMask = LayerMask.GetMask("Ladders");
-        AppIntegrity.AssertPresent(laddersLayerMask);
-
         enemiesLayerMask = LayerMask.GetMask("Enemies");
-        AppIntegrity.AssertPresent(enemiesLayerMask);
-
         hazardsLayerMask = LayerMask.GetMask("Hazards");
+        AppIntegrity.AssertPresent(playerLayerMask);
+        AppIntegrity.AssertPresent(groundLayerMask);
+        AppIntegrity.AssertPresent(laddersLayerMask);
+        AppIntegrity.AssertPresent(enemiesLayerMask);
         AppIntegrity.AssertPresent(hazardsLayerMask);
-
-        groundCheck = Utils.FindChildGameObject(this.gameObject, "GroundCheck");
-        AppIntegrity.AssertPresent(groundCheck);
-
-        cameraLeft = Utils.FindChildGameObject(this.gameObject, "CameraLeft");
-        AppIntegrity.AssertPresent(cameraLeft);
-
-        cameraRight = Utils.FindChildGameObject(this.gameObject, "CameraRight");
-        AppIntegrity.AssertPresent(cameraRight);
-
-        cameraCenter = Utils.FindChildGameObject(this.gameObject, "CameraCenter");
-        AppIntegrity.AssertPresent(cameraCenter);
 
         gravityScale = rb.gravityScale;
 
@@ -263,7 +264,7 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleOrientation() {
         // handle sprite flip
-        if (isRunning && !isClimbing && orientationX != Mathf.Sign(rb.velocity.x))
+        if ((isRunning || isClimbing) && Mathf.Abs(moveInput.x) > Mathf.Epsilon && orientationX != Mathf.Sign(rb.velocity.x))
         {
             orientationX = -orientationX;
             transform.localScale = new Vector2(Mathf.Sign(rb.velocity.x), 1f);
@@ -272,15 +273,18 @@ public class PlayerMovement : MonoBehaviour
         // handle camera positioning
         if (isClimbing)
         {
+            followCam.Follow = cameraCenter.transform;
             followCam.LookAt = cameraCenter.transform;
         }
-        else if (orientationX >= 0)
-        {
-            followCam.LookAt = cameraRight.transform;
-        }
+        // else if (orientationX >= 0)
+        // {
+        //     followCam.Follow = cameraLeft.transform;
+        //     followCam.LookAt = cameraLeft.transform;
+        // }
         else
         {
-            followCam.LookAt = cameraLeft.transform;
+            followCam.Follow = cameraRight.transform;
+            followCam.LookAt = cameraRight.transform;
         }
     }
 
@@ -478,5 +482,28 @@ public class PlayerMovement : MonoBehaviour
     void OnJump(InputValue value)
     {
         isJumpPressed = value.isPressed;
+    }
+
+    void OnFire(InputValue value)
+    {
+        // In a real game, I would add a cool-down timer to control the firing rate.
+        // I would also try and de-couple the player input from the firing action.
+        // Since this is a tutorial, I'm keeping this ridiculously simple.
+        GameObject instance = Instantiate(arrow, gun.transform.position, gun.transform.rotation);
+        Rigidbody2D rbInstance = Utils.GetRequiredComponent<Rigidbody2D>(instance);
+
+        // send arrow flying
+        float dirX = Mathf.Sign(transform.localScale.x);
+        rbInstance.velocity = new Vector3(arrowSpeed * dirX, 0f, 0f);
+
+        // flip arrow
+        instance.transform.localScale = transform.localScale;
+    }
+
+    void OnResetGame(InputValue value)
+    {
+        if (value.isPressed) {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
     }
 }
