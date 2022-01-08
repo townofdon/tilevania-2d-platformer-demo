@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Enemy : MonoBehaviour
@@ -96,8 +95,10 @@ public class Enemy : MonoBehaviour
 
     public void Die()
     {
+        if (!isAlive) return;
         isAlive = false;
         animator.speed = 0f;
+        StartCoroutine(Remove());
     }
 
     private void DeathSpin()
@@ -322,5 +323,27 @@ public class Enemy : MonoBehaviour
             -capsule.size.y / 2f + capsule.offset.y,
             0f
         );
+    }
+
+    IEnumerator Remove() {
+        // wait for enemy to stop moving
+        while (rb.velocity.magnitude > 0.1f)
+        {
+            yield return null;
+        }
+
+        yield return new WaitForSeconds(5f);
+
+        Color c = spriteRenderer.color;
+        for (float alpha = 1f; alpha >= 0; alpha -= 0.01f)
+        {
+            c.a = alpha;
+            spriteRenderer.color = c;
+            yield return null;
+        }
+
+        Destroy(gameObject);
+
+        yield return null;
     }
 }

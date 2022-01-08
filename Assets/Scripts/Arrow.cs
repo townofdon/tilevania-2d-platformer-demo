@@ -44,15 +44,11 @@ public class Arrow : MonoBehaviour
     }
 
     IEnumerator Remove() {
-        Debug.Log("WAITING FOR 2 SECONDS");
-
         yield return new WaitForSeconds(2f);
 
         if (rb.velocity.magnitude > 0f) yield break;
 
         isRemoving = true;
-
-        Debug.Log("FADING");
     
         Color c = spriteRenderer.color;
         for (float alpha = 1f; alpha >= 0; alpha -= 0.01f)
@@ -61,8 +57,6 @@ public class Arrow : MonoBehaviour
             spriteRenderer.color = c;
             yield return null;
         }
-
-        Debug.Log("DESTROYING GAME OBJECT");
 
         Destroy(gameObject);
 

@@ -415,7 +415,7 @@ MonoBehaviour:
   maxFallSpeed: 1.5
   jumpFallMultiplier: 5
   jumpShortMultiplier: 20
-  jumpLateTime: 0.05
+  jumpLateTime: 0.06
   jumpShortTime: 0.05
   canAirControl: 1
   followCam: {fileID: 0}

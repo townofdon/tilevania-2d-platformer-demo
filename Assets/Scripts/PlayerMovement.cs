@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Events;
-using UnityEngine.SceneManagement;
 using Cinemachine;
 
 // TO-DO NOTES
@@ -148,6 +147,8 @@ public class PlayerMovement : MonoBehaviour
         rb.freezeRotation = false;
         // fall over dead
         rb.AddTorque(1f);
+
+        FindObjectOfType<GameSession>().ProcessPlayerDeath();
     }
 
     // PRIVATE METHODS
@@ -476,16 +477,20 @@ public class PlayerMovement : MonoBehaviour
 
     void OnMove(InputValue value)
     {
+        if (!isAlive) return;
         moveInput = value.Get<Vector2>();
     }
 
     void OnJump(InputValue value)
     {
+        if (!isAlive) return;
         isJumpPressed = value.isPressed;
     }
 
     void OnFire(InputValue value)
     {
+        if (!isAlive) return;
+
         // In a real game, I would add a cool-down timer to control the firing rate.
         // I would also try and de-couple the player input from the firing action.
         // Since this is a tutorial, I'm keeping this ridiculously simple.
@@ -498,12 +503,5 @@ public class PlayerMovement : MonoBehaviour
 
         // flip arrow
         instance.transform.localScale = transform.localScale;
-    }
-
-    void OnResetGame(InputValue value)
-    {
-        if (value.isPressed) {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-        }
     }
 }

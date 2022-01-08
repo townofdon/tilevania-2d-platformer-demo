@@ -1,6 +1,4 @@
-using System.Collections;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class LevelExit : MonoBehaviour
 {
@@ -16,6 +14,7 @@ public class LevelExit : MonoBehaviour
     float opacityMin = .3f;
     float t = 0f;
     float pulseDuration = 1f;
+    bool levelCompleted = false;
 
     void Start()
     {
@@ -52,27 +51,14 @@ public class LevelExit : MonoBehaviour
     }
 
     void OnTriggerEnter2D(Collider2D other) {
+        if (levelCompleted) return;
+
         if (other.gameObject.tag == "Player")
         {
+            levelCompleted = true;
             particles.Play();
             spriteRenderer.color = colorOn;
-            StartCoroutine(LoadNextLevel());
+            FindObjectOfType<GameSession>().ProcessLevelComplete();
         }
-    }
-
-    IEnumerator LoadNextLevel()
-    {
-        yield return new WaitForSecondsRealtime(2f);
-
-        int nextSceneIndex = SceneManager.GetActiveScene().buildIndex + 1;
-
-        if (nextSceneIndex == SceneManager.sceneCountInBuildSettings)
-        {
-            nextSceneIndex = 0;
-        }
-
-        SceneManager.LoadScene(nextSceneIndex);
-
-        yield return null;
     }
 }
