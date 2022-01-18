@@ -6,6 +6,7 @@ TagManager:
   tags:
   - GroundCheck
   - EnemyGumba
+  - PlayerUI
   layers:
   - Default
   - TransparentFX
@@ -21,7 +22,7 @@ TagManager:
   - Enemies
   - Hazards
   - Bullets
-  - 
+  - Pickups
   - 
   - 
   - 
@@ -58,6 +59,12 @@ TagManager:
   - name: Hazards
     uniqueID: 2811021285
     locked: 0
+  - name: Default
+    uniqueID: 0
+    locked: 0
+  - name: Pickups
+    uniqueID: 2568189665
+    locked: 0
   - name: Enemies
     uniqueID: 3667267229
     locked: 0
@@ -67,6 +74,9 @@ TagManager:
   - name: Bullets
     uniqueID: 547830599
     locked: 0
-  - name: Default
-    uniqueID: 0
+  - name: Foreground
+    uniqueID: 2992057717
+    locked: 0
+  - name: FX
+    uniqueID: 2580125343
     locked: 0

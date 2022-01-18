@@ -38,4 +38,10 @@ public class AppIntegrity
         AppIntegrity.AssertPresent(value);
         if ((int)value == 0) Debug.LogException(new System.Exception("FAILED NON-ZERO CHECK: " + value.GetType()));
     }
+
+    public static void AssertNonEmptyString(string value)
+    {
+        AppIntegrity.AssertPresent(value);
+        if (value == "") Debug.LogException(new System.Exception("FAILED EMPTY STRING CHECK: " + value.GetType()));
+    }
 }

@@ -27,6 +27,9 @@ public class Enemy : MonoBehaviour
     [Tooltip("How far the player goes flying after being hit")]
     [SerializeField] float damageRebound = 5f;
 
+    [Tooltip("How far the player jumps up from the gumba")]
+    [SerializeField] float squishJumpSpeed = 5f;
+
     [Header("Movement Control")]
     [Space]
 
@@ -63,6 +66,7 @@ public class Enemy : MonoBehaviour
     Vector3 groundCheck = new Vector3(0f, 0f);
     int groundLayerMask;
     int enemiesLayerMask;
+    int hazardsLayerMask;
 
     // state
     bool isAlive = true;
@@ -87,8 +91,9 @@ public class Enemy : MonoBehaviour
         if (health <= 0) {
             Die();
             DeathSpin();
+        } else {
+            AudioManager.instance.Play("GumbaDamage");
         }
-
     }
 
     public bool IsAlive => isAlive;
@@ -106,8 +111,9 @@ public class Enemy : MonoBehaviour
         rb.velocity = new Vector3(rb.velocity.x, rb.velocity.y + 10f);
         // turn upside down
         transform.rotation = new Quaternion(0f, 0f, 90f, 0f);
-    }
 
+        AudioManager.instance.Play("GumbaDeath");
+    }
     private void Squished()
     {
         transform.localScale -= new Vector3(0f, 0.6f);
@@ -115,8 +121,9 @@ public class Enemy : MonoBehaviour
         polygon.isTrigger = false;
         capsule.enabled = false;
         Physics2D.IgnoreCollision(capsulePlayer, polygon);
-    }
 
+        AudioManager.instance.Play("GumbaSquish");
+    }
     void Start()
     {
         // components
@@ -129,6 +136,7 @@ public class Enemy : MonoBehaviour
         // layers, ground stuff
         groundLayerMask = LayerMask.GetMask("Ground");
         enemiesLayerMask = LayerMask.GetMask("Enemies");
+        hazardsLayerMask = LayerMask.GetMask("Hazards");
         groundCheck = CalcGroundCheckPos();
 
         // player instance && respective components
@@ -154,12 +162,14 @@ public class Enemy : MonoBehaviour
         AppIntegrity.AssertPresent(capsule);
         AppIntegrity.AssertPresent(polygon);
         AppIntegrity.AssertPresent(animator);
-        AppIntegrity.AssertPresent(groundLayerMask);
-        AppIntegrity.AssertPresent(enemiesLayerMask);
         AppIntegrity.AssertPresent(player);
         AppIntegrity.AssertPresent(playerMovement);
         AppIntegrity.AssertPresent(capsulePlayer);
         AppIntegrity.AssertPresent(rbPlayer);
+
+        AppIntegrity.AssertNonZero(groundLayerMask);
+        AppIntegrity.AssertNonZero(enemiesLayerMask);
+        AppIntegrity.AssertNonZero(hazardsLayerMask);
     }
 
     void Update()
@@ -181,6 +191,13 @@ public class Enemy : MonoBehaviour
     // SOLUTION - refactor to perform a collision check on every frame
     void OnCollisionEnter2D(Collision2D other) {
         if (!isAlive) return;
+
+        if (Utils.LayerMaskContainsLayer(hazardsLayerMask, other.gameObject.layer))
+        {
+            Die();
+            DeathSpin();
+            return;
+        }
 
         if (Utils.LayerMaskContainsLayer(enemiesLayerMask, other.gameObject.layer))
         {
@@ -211,6 +228,13 @@ public class Enemy : MonoBehaviour
     void OnTriggerEnter2D(Collider2D other) {
         if (!isAlive) return;
 
+        if (Utils.LayerMaskContainsLayer(hazardsLayerMask, other.gameObject.layer))
+        {
+            Die();
+            DeathSpin();
+            return;
+        }
+
         if (other.gameObject.tag == "Player" || other.gameObject.name == "Player")
         {
             Vector3 contactPoint = other.ClosestPoint(transform.position) - (Vector2)other.transform.position;
@@ -222,17 +246,15 @@ public class Enemy : MonoBehaviour
                 Squished();
                 // player should bounce off of opponent
                 rbPlayer.velocity = Vector3.Reflect(rbPlayer.velocity, Vector3.up);
+                if (playerMovement.IsJumpPressed())
+                {
+                    rbPlayer.velocity += Vector2.up * squishJumpSpeed;
+                }
             }
             else
             {
                 TriggerPlayerDamage(other.gameObject, contactPoint);
             }
-
-            // TODO: thrust back player in direction they came from
-
-            // TODO: if player hits from above, kill the enemy
-
-            // TODO: if player hits from the side or below, damage the player && cancel 
         }
     }
 
@@ -332,7 +354,7 @@ public class Enemy : MonoBehaviour
             yield return null;
         }
 
-        yield return new WaitForSeconds(5f);
+        yield return new WaitForSeconds(.5f);
 
         Color c = spriteRenderer.color;
         for (float alpha = 1f; alpha >= 0; alpha -= 0.01f)

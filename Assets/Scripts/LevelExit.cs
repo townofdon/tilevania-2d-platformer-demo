@@ -59,6 +59,8 @@ public class LevelExit : MonoBehaviour
             particles.Play();
             spriteRenderer.color = colorOn;
             FindObjectOfType<GameSession>().ProcessLevelComplete();
+
+            AudioManager.instance.Play("LevelComplete");
         }
     }
 }

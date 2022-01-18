@@ -1,0 +1,26 @@
+Goals for music:
+
+- Create an audio manager - prob needs to be a singleton
+- Start playing the STRINGS sample
+- Overlay additional tracks when the player enters a collider - layer Audio
+
+How to implement??
+
+- Cut up current tracks into loopable samples
+- Unity prob has a way to play looped audio - figure out if this is the case
+  - If so, we only need to worry about starting/stopping things at the correct time
+- BPM is 150 - do maths based on time to play 1-bar loops
+- On PLAY - enqueue a loop to start on the next bar
+- On STOP - enqueue a loop to end after the current bar
+
+Timing is important - we probably cannot rely on the Update method since it is frame-based;
+this will cause things to get out of sync.
+
+Instead:
+
+- Keep track of time elapsed since start of game
+- Run a Coroutine that starts a track at (timeFromGameStart + timeFromGameStart % timePerBar)
+
+OR:
+
+- Look into FMod - seems like that has multitrack capability and it may be straightforward to hook into Unity

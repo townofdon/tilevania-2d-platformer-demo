@@ -23,6 +23,7 @@ public class PlayerMovement : MonoBehaviour
 
     [SerializeField] GameObject arrow;
     [SerializeField] float arrowSpeed = 20f;
+    [SerializeField] float timeToShowFiringAnim = 0.25f;
 
     [Header("Movement Control")]
     [Space]
@@ -90,8 +91,13 @@ public class PlayerMovement : MonoBehaviour
     float jumpLateTimeElapsed = 0f;
     float jumpShortTimeElapsed = 0f;
 
+    // STATE - WEAPONS
+    bool hasWeaponBow = false;
+    float timeFiring = 0f;
+
     // COMPONENTS
     SpriteRenderer spriteRenderer;
+    ParticleSystem particles;
     Rigidbody2D rb;
     Collider2D col;
     Animator anim;
@@ -110,6 +116,7 @@ public class PlayerMovement : MonoBehaviour
     // ANIMATION STATES - can also use an ENUM
     const string ANIM_PLAYER_IDLE = "PlayerIdle";
     const string ANIM_PLAYER_DEATH = "PlayerDeath";
+    const string ANIM_PLAYER_FIRING = "PlayerFiring";
     const string ANIM_PLAYER_RUNNING = "PlayerRunning";
     const string ANIM_PLAYER_CLIMBING = "PlayerClimbing";
     const string ANIM_PLAYER_CLIMB_IDLE = "PlayerClimbIdle";
@@ -134,8 +141,16 @@ public class PlayerMovement : MonoBehaviour
         timeInvincibleAfterTakingDamageElapsed = 0;
         health -= amount;
 
-        Debug.Log("Player damage=" + amount + " health=" + health);
-        if (health <= 0) Die();
+        if (health <= 0) {
+            Die();
+        } else if (amount > 0f) {
+            if (UnityEngine.Random.Range(0, 1) == 0)
+                AudioManager.instance.Play("PlayerDamage1");
+            else
+                AudioManager.instance.Play("PlayerDamage2");
+        }
+
+        RefreshUI();
         
         return true;
     }
@@ -148,7 +163,28 @@ public class PlayerMovement : MonoBehaviour
         // fall over dead
         rb.AddTorque(1f);
 
+        Time.timeScale = 0.2f;
+
+        AudioManager.instance.Play("PlayerDeath");
         FindObjectOfType<GameSession>().ProcessPlayerDeath();
+        RefreshUI();
+    }
+
+    public void AcquireWeaponBow()
+    {
+        hasWeaponBow = true;
+        RefreshUI();
+    }
+
+    public void PlayParticleEffect()
+    {
+        particles.Play();
+    }
+
+    public void StopParticleEffect()
+    {
+        particles.Stop();
+        particles.Clear();
     }
 
     // PRIVATE METHODS
@@ -157,17 +193,23 @@ public class PlayerMovement : MonoBehaviour
     {
         jumpLateTimeElapsed = jumpLateTime + 1f;
         timeInvincibleAfterTakingDamageElapsed = timeInvincibleAfterTakingDamage + 1f;
+        timeFiring = timeToShowFiringAnim + 1f;
         health = startHealth;
         isAlive = true;
         isRunning = false;
         isJumping = false;
         isClimbing = false;
+        hasWeaponBow = false;
+
+        Time.timeScale = 1f;
 
         SpriteRenderer gunSprite = gun.GetComponent<SpriteRenderer>();
         if (gunSprite)
         {
             gunSprite.enabled = false;
         }
+
+        RefreshUI();
     }
 
     void Awake() {
@@ -182,6 +224,7 @@ public class PlayerMovement : MonoBehaviour
         AppIntegrity.AssertPresent(arrow);
 
         spriteRenderer = Utils.GetRequiredComponent<SpriteRenderer>(this.gameObject);
+        particles = Utils.GetRequiredComponent<ParticleSystem>(this.gameObject);
         rb = Utils.GetRequiredComponent<Rigidbody2D>(this.gameObject);
         anim = Utils.GetRequiredComponent<Animator>(this.gameObject);
         col = Utils.GetRequiredComponent<Collider2D>(this.gameObject);
@@ -204,6 +247,8 @@ public class PlayerMovement : MonoBehaviour
         AppIntegrity.AssertPresent(hazardsLayerMask);
 
         gravityScale = rb.gravityScale;
+        particles.Stop();
+        particles.Clear();
 
         Initialize();
     }
@@ -214,6 +259,15 @@ public class PlayerMovement : MonoBehaviour
         BlinkWhenDamaged();
 
         Utils.Elapse(ref timeInvincibleAfterTakingDamageElapsed, Time.deltaTime, timeInvincibleAfterTakingDamage);
+        Utils.Elapse(ref timeFiring, Time.deltaTime, timeToShowFiringAnim);
+
+        // manually control the particle system since it only plays when time is paused
+        // see: https://answers.unity.com/questions/445843/how-to-emit-particle-or-un-pause-particle-when-tim.html
+        // see: https://gist.github.com/AlexTiTanium/5676482
+        if (Time.timeScale < 0.01f)
+        {
+            particles.Simulate(Time.unscaledDeltaTime, true, false);
+        }
     }
 
     void FixedUpdate() {
@@ -225,9 +279,21 @@ public class PlayerMovement : MonoBehaviour
         HandleFall();
     }
 
+    void RefreshUI()
+    {
+        PlayerUI.instance.SetHealth(health);
+        PlayerUI.instance.SetHasWeapon(hasWeaponBow);
+
+        // TODO: update num coins
+    }
+
     void HandleMove()
     {
-        if (!isAlive || timeInvincibleAfterTakingDamageElapsed < 0.1f) return;
+        if (!isAlive || timeInvincibleAfterTakingDamageElapsed < 0.1f)
+        {
+            AudioManager.instance.Stop("PlayerFootsteps");
+            return;
+        }
     
         if (CanMoveX())
         {
@@ -247,11 +313,15 @@ public class PlayerMovement : MonoBehaviour
                     rb.velocity = new Vector2(newSpeed, rb.velocity.y);
                 }
                 isRunning = true;
+                AudioManager.instance.Play("PlayerFootsteps");
             }
             else
             {
                 isRunning = false;
+                AudioManager.instance.Stop("PlayerFootsteps");
             }
+        } else {
+            AudioManager.instance.Stop("PlayerFootsteps");
         }
     }
 
@@ -358,6 +428,7 @@ public class PlayerMovement : MonoBehaviour
             jumpShortTimeElapsed = 0f;
             // rb.velocity += new Vector2(0f, jumpSpeed);
             rb.velocity = new Vector2(rb.velocity.x, Mathf.Max(jumpSpeed, jumpSpeed + rb.velocity.y));
+            AudioManager.instance.Play("PlayerJump");
         }
     }
 
@@ -370,6 +441,9 @@ public class PlayerMovement : MonoBehaviour
     }
 
     bool CheckCanClimb() {
+        // Utils.DebugDrawRect(transform.position, 0.9f);
+        // RaycastHit2D hit = Physics2D.CircleCast(transform.position, 0.9f, Vector2.up, 0f, laddersLayerMask);
+        // return col.IsTouchingLayers(laddersLayerMask) || hit.collider != null;
         return col.IsTouchingLayers(laddersLayerMask);
     }
 
@@ -424,6 +498,10 @@ public class PlayerMovement : MonoBehaviour
         if (!isAlive)
         {
             nextAnimState = ANIM_PLAYER_DEATH;
+        }
+        else if (timeFiring < timeToShowFiringAnim)
+        {
+            nextAnimState = ANIM_PLAYER_FIRING;
         }
         else if (isClimbing && isClimbIdle) {
             nextAnimState = ANIM_PLAYER_CLIMB_IDLE;
@@ -490,6 +568,11 @@ public class PlayerMovement : MonoBehaviour
     void OnFire(InputValue value)
     {
         if (!isAlive) return;
+        if (!hasWeaponBow) return;
+
+        timeFiring = 0f;
+
+        AudioManager.instance.Play("FireArrow");
 
         // In a real game, I would add a cool-down timer to control the firing rate.
         // I would also try and de-couple the player input from the firing action.
@@ -497,9 +580,9 @@ public class PlayerMovement : MonoBehaviour
         GameObject instance = Instantiate(arrow, gun.transform.position, gun.transform.rotation);
         Rigidbody2D rbInstance = Utils.GetRequiredComponent<Rigidbody2D>(instance);
 
-        // send arrow flying
+        // send arrow flying - matching player's current trajectory
         float dirX = Mathf.Sign(transform.localScale.x);
-        rbInstance.velocity = new Vector3(arrowSpeed * dirX, 0f, 0f);
+        rbInstance.velocity = new Vector3(arrowSpeed * dirX, 0f, 0f) + (Vector3)rb.velocity * 0.2f;
 
         // flip arrow
         instance.transform.localScale = transform.localScale;

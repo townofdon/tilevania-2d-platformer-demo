@@ -5,29 +5,77 @@ using UnityEngine.SceneManagement;
 public class GameSession : MonoBehaviour
 {
     [Header("Player Properties")]
-    [SerializeField] int playerLives = 3;
+    [SerializeField] int startPlayerLives = 3;
 
     [Header("Game Behaviour")]
     [SerializeField] float reloadLevelTimeDelay = 1.5f;
     [SerializeField] float loadNextLevelTimeDelay = 2f;
 
+    // state
+    int playerLives = 3;
+    int numCoins = 0;
+
+    // singleton
+    private static GameSession _instance;
+    public static GameSession instance {
+        get {
+            AppIntegrity.AssertPresent<GameSession>(_instance);
+            return _instance;
+        }
+    }
+
     public int PlayerLives => playerLives;
 
     void Awake()
     {
-        int numGameSessionsAlreadyExist = FindObjectsOfType<GameSession>().Length;
+        // // ALTERNATIVE SINGLETON PATTERN
+        // int numGameSessionsAlreadyExist = FindObjectsOfType<GameSession>().Length;
+        // if (numGameSessionsAlreadyExist > 1)
+        // {
+        //     Destroy(gameObject);
+        // } else {
+        //     DontDestroyOnLoad(gameObject);
+        // }
 
-        if (numGameSessionsAlreadyExist > 1)
-        {
-            Destroy(gameObject);
-        } else {
-            DontDestroyOnLoad(gameObject);
+        if (_instance != null) {
+            if (_instance != this) { Destroy(this.gameObject); }
+            return;
         }
+
+        DontDestroyOnLoad(this.gameObject);
+        _instance = this;
     }
 
-    void Update()
+    void Init()
     {
-        
+        playerLives = startPlayerLives;
+        numCoins = 0;
+    }
+
+    void Start()
+    {
+        Init();
+        AudioManager.instance.StartMusic();
+        RefreshUI();
+    }
+
+    void RefreshUI()
+    {
+        PlayerUI.instance.SetLives(playerLives);
+        PlayerUI.instance.SetNumCoins(numCoins);
+    }
+
+    public void ProcessAcquireCoin()
+    {
+        numCoins += 1;
+        AudioManager.instance.Play("Coin");
+
+        if (numCoins % 100 == 0) {
+            playerLives += 1;
+            AudioManager.instance.Play("OneUp");
+        }
+
+        RefreshUI();
     }
 
     public void ProcessPlayerDeath()
@@ -52,6 +100,7 @@ public class GameSession : MonoBehaviour
     {
         yield return new WaitForSecondsRealtime(reloadLevelTimeDelay);
 
+        RefreshUI();
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
@@ -73,7 +122,6 @@ public class GameSession : MonoBehaviour
     {
         yield return new WaitForSecondsRealtime(reloadLevelTimeDelay);
 
-        SceneManager.LoadScene(0);
-        Destroy(gameObject);
+        SceneManager.LoadScene("GameOverScreen");
     }
 }

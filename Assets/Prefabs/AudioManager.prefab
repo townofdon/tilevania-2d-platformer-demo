@@ -1,0 +1,289 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &9779891766580702
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 9779891766580696}
+  - component: {fileID: 9779891766580697}
+  m_Layer: 0
+  m_Name: AudioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &9779891766580696
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9779891766580702}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &9779891766580697
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9779891766580702}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18617a045e3769b49812a70581b84996, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sounds:
+  - soundName: Coin
+    clip: {fileID: 8300000, guid: b4bf109504d1a6943a17a298f240f7df, type: 3}
+    volume: 0.489
+    pitch: 1
+    loop: 0
+    volumeVarianceMultiplier: 0.041
+    pitchVarianceMultiplier: 0.106
+  - soundName: FireArrow
+    clip: {fileID: 8300000, guid: 489cd8be14dc03440bf7870dc4bea6c9, type: 3}
+    volume: 0.7
+    pitch: 1
+    loop: 0
+    volumeVarianceMultiplier: 0.056
+    pitchVarianceMultiplier: 0.079
+  - soundName: GetWeapon
+    clip: {fileID: 8300000, guid: 57e1827200a06bf439c3289dbabe14f2, type: 3}
+    volume: 0.35
+    pitch: 0.7
+    loop: 0
+    volumeVarianceMultiplier: 0
+    pitchVarianceMultiplier: 0
+  - soundName: GumbaDamage
+    clip: {fileID: 8300000, guid: a5ffa8d05b1cfd7438489da39242fcda, type: 3}
+    volume: 0.7
+    pitch: 1
+    loop: 0
+    volumeVarianceMultiplier: 0.034
+    pitchVarianceMultiplier: 0.233
+  - soundName: GumbaDeath
+    clip: {fileID: 8300000, guid: f331ca34c584f7a4a9e3199e698ecb7d, type: 3}
+    volume: 0.485
+    pitch: 0.73
+    loop: 0
+    volumeVarianceMultiplier: 0.063
+    pitchVarianceMultiplier: 0.44
+  - soundName: GumbaSquish
+    clip: {fileID: 8300000, guid: d18cac3a06870414097d90f3932e134d, type: 3}
+    volume: 0.7
+    pitch: 1
+    loop: 0
+    volumeVarianceMultiplier: 0.019
+    pitchVarianceMultiplier: 0.183
+  - soundName: PlayerDamage1
+    clip: {fileID: 8300000, guid: 33b4fb69cd2e936469e8fa92592d75a2, type: 3}
+    volume: 0.7
+    pitch: 1
+    loop: 0
+    volumeVarianceMultiplier: 0.1
+    pitchVarianceMultiplier: 0.3
+  - soundName: PlayerDamage2
+    clip: {fileID: 8300000, guid: b80378b280f8e274098d1eb9e81a330d, type: 3}
+    volume: 0.7
+    pitch: 1
+    loop: 0
+    volumeVarianceMultiplier: 0.037
+    pitchVarianceMultiplier: 0.153
+  - soundName: PlayerDeath
+    clip: {fileID: 8300000, guid: a5abe3f12826e8f41b5dd050fa8b5962, type: 3}
+    volume: 0.7
+    pitch: 1
+    loop: 0
+    volumeVarianceMultiplier: 0
+    pitchVarianceMultiplier: 0.2
+  - soundName: PlayerFootsteps
+    clip: {fileID: 8300000, guid: 13772bf7ec9460c49baa67ea8a635733, type: 3}
+    volume: 0.805
+    pitch: 1
+    loop: 1
+    volumeVarianceMultiplier: 0.009
+    pitchVarianceMultiplier: 0.052
+  - soundName: PlayerJump
+    clip: {fileID: 8300000, guid: 6c051026129c5ad409cd854fc1698cc2, type: 3}
+    volume: 0.232
+    pitch: 1
+    loop: 0
+    volumeVarianceMultiplier: 0.022
+    pitchVarianceMultiplier: 0.063
+  - soundName: LevelComplete
+    clip: {fileID: 8300000, guid: 4c4b6a82bf707564db9a49813788eaa0, type: 3}
+    volume: 0.45
+    pitch: 1
+    loop: 0
+    volumeVarianceMultiplier: 0
+    pitchVarianceMultiplier: 0
+  - soundName: BounceJump
+    clip: {fileID: 8300000, guid: d3bf26f6290fbd64b8077349531e22ed, type: 3}
+    volume: 0.701
+    pitch: 1
+    loop: 0
+    volumeVarianceMultiplier: 0.022
+    pitchVarianceMultiplier: 0.06
+  - soundName: BounceJumpHuge
+    clip: {fileID: 8300000, guid: 315c470458ae390478ebfbdba8997943, type: 3}
+    volume: 0.675
+    pitch: 1
+    loop: 0
+    volumeVarianceMultiplier: 0.022
+    pitchVarianceMultiplier: 0.06
+  - soundName: Bounce
+    clip: {fileID: 8300000, guid: 7cddd04d6fabfec47963a816b4ca939a, type: 3}
+    volume: 0.526
+    pitch: 1
+    loop: 0
+    volumeVarianceMultiplier: 0.022
+    pitchVarianceMultiplier: 0.06
+  - soundName: BounceHuge
+    clip: {fileID: 8300000, guid: 22e56326419b20d448c1eebf33bfb42c, type: 3}
+    volume: 0.684
+    pitch: 1
+    loop: 0
+    volumeVarianceMultiplier: 0.022
+    pitchVarianceMultiplier: 0.06
+  - soundName: Splash
+    clip: {fileID: 8300000, guid: 362c2705de55aa84396d033c81843899, type: 3}
+    volume: 0.519
+    pitch: 1
+    loop: 0
+    volumeVarianceMultiplier: 0.021
+    pitchVarianceMultiplier: 0.039
+  - soundName: OneUp
+    clip: {fileID: 8300000, guid: 901ac1e717fba404496568c781268f40, type: 3}
+    volume: 0.519
+    pitch: 1
+    loop: 0
+    volumeVarianceMultiplier: 0.007
+    pitchVarianceMultiplier: 0.008
+  musicTracks:
+  - soundName: Strings
+    clip: {fileID: 8300000, guid: 97885332924ba3b4c921c945fd94bd18, type: 3}
+    volume: 0.724
+    pitch: 1
+    loop: 1
+    volumeVarianceMultiplier: 0
+    pitchVarianceMultiplier: 0
+  - soundName: Bass
+    clip: {fileID: 8300000, guid: 91d9b8e0cb5847c439507eb2f8412a62, type: 3}
+    volume: 0.876
+    pitch: 1
+    loop: 1
+    volumeVarianceMultiplier: 0
+    pitchVarianceMultiplier: 0
+  - soundName: Lead
+    clip: {fileID: 8300000, guid: 0120ec63e883205468369a2322f628da, type: 3}
+    volume: 0.664
+    pitch: 1
+    loop: 1
+    volumeVarianceMultiplier: 0
+    pitchVarianceMultiplier: 0
+  - soundName: Drums
+    clip: {fileID: 8300000, guid: 385030580178bda42923ce2781ddc0b0, type: 3}
+    volume: 0.801
+    pitch: 1
+    loop: 1
+    volumeVarianceMultiplier: 0
+    pitchVarianceMultiplier: 0
+  - soundName: Tape
+    clip: {fileID: 8300000, guid: 7640c8054aa2e91489f75229a1903ea7, type: 3}
+    volume: 0.7
+    pitch: 1
+    loop: 1
+    volumeVarianceMultiplier: 0
+    pitchVarianceMultiplier: 0
+  - soundName: Whistle
+    clip: {fileID: 8300000, guid: 2be7e61b407fbba4cb517b259a253415, type: 3}
+    volume: 0.7
+    pitch: 1
+    loop: 1
+    volumeVarianceMultiplier: 0
+    pitchVarianceMultiplier: 0
+  - soundName: SynBass
+    clip: {fileID: 8300000, guid: d9657878de3f7564e8632e118051e58a, type: 3}
+    volume: 0.724
+    pitch: 1
+    loop: 1
+    volumeVarianceMultiplier: 0
+    pitchVarianceMultiplier: 0
+  - soundName: Perc
+    clip: {fileID: 8300000, guid: 0167b919d88a90442a1cdaa195543fea, type: 3}
+    volume: 0.754
+    pitch: 1
+    loop: 1
+    volumeVarianceMultiplier: 0
+    pitchVarianceMultiplier: 0
+  - soundName: BawzStrings
+    clip: {fileID: 8300000, guid: a40c0361a5fde2e4484e5cf6f00c2f53, type: 3}
+    volume: 0.754
+    pitch: 1
+    loop: 1
+    volumeVarianceMultiplier: 0
+    pitchVarianceMultiplier: 0
+  - soundName: BawzBass
+    clip: {fileID: 8300000, guid: dc4bf11863982274bb1337b67c9dadc8, type: 3}
+    volume: 0.813
+    pitch: 1
+    loop: 1
+    volumeVarianceMultiplier: 0
+    pitchVarianceMultiplier: 0
+  - soundName: BawzDrums
+    clip: {fileID: 8300000, guid: d8ca349d28e1ee7468a3295ba579d800, type: 3}
+    volume: 0.75
+    pitch: 1
+    loop: 1
+    volumeVarianceMultiplier: 0
+    pitchVarianceMultiplier: 0
+  - soundName: BawzSquare
+    clip: {fileID: 8300000, guid: 3d42b444b8109c54b9c06acc1c66e9b7, type: 3}
+    volume: 0.673
+    pitch: 1
+    loop: 1
+    volumeVarianceMultiplier: 0
+    pitchVarianceMultiplier: 0
+  - soundName: SuxessStrings
+    clip: {fileID: 8300000, guid: ae63ef8917cd4f94f8aa256302f9fe02, type: 3}
+    volume: 0.721
+    pitch: 1
+    loop: 1
+    volumeVarianceMultiplier: 0
+    pitchVarianceMultiplier: 0
+  - soundName: SuxessBass
+    clip: {fileID: 8300000, guid: 13968c9abf6b4264890709ea941c1eb8, type: 3}
+    volume: 0.816
+    pitch: 1
+    loop: 1
+    volumeVarianceMultiplier: 0
+    pitchVarianceMultiplier: 0
+  - soundName: SuxessDrums
+    clip: {fileID: 8300000, guid: fafec8595d840f64e81114681191069d, type: 3}
+    volume: 0.762
+    pitch: 1
+    loop: 1
+    volumeVarianceMultiplier: 0
+    pitchVarianceMultiplier: 0
+  nullSound:
+    soundName: ERR0R
+    clip: {fileID: 8300000, guid: 2208f11c9d4bba2439b08f8e6335de81, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
+    volumeVarianceMultiplier: 0
+    pitchVarianceMultiplier: 0
+  musicTrackFadeInTime: 0.8
+  musicTrackFadeOutTime: 0.45

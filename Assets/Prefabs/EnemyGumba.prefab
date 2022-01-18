@@ -76,7 +76,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -627700067
-  m_SortingLayer: -3
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_Sprite: {fileID: -632810548, guid: d601eac55c8848f45b27eeca7740437b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -196,8 +196,9 @@ MonoBehaviour:
   damageBlinkRate: 0.05
   damageBlinkColor: {r: 1, g: 0, b: 0, a: 1}
   attackDamage: 10
-  topKillAngle: 40
+  topKillAngle: 65
   damageRebound: 15
+  squishJumpSpeed: 20
   moveSpeed: 2
   turnAroundTime: 1
   startWaitTime: 1
