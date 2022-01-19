@@ -14,6 +14,9 @@ public class GameSession : MonoBehaviour
     // state
     int playerLives = 3;
     int numCoins = 0;
+    int enemiesDefeated = 0;
+    float timeElapsed = 0f;
+    bool timer = true;
 
     // singleton
     private static GameSession _instance;
@@ -25,6 +28,9 @@ public class GameSession : MonoBehaviour
     }
 
     public int PlayerLives => playerLives;
+    public int NumCoins => numCoins;
+    public int EnemiesDefeated => enemiesDefeated;
+    public float TimeElapsed => timeElapsed;
 
     void Awake()
     {
@@ -50,6 +56,8 @@ public class GameSession : MonoBehaviour
     {
         playerLives = startPlayerLives;
         numCoins = 0;
+        enemiesDefeated = 0;
+        timer = true;
     }
 
     void Start()
@@ -59,10 +67,20 @@ public class GameSession : MonoBehaviour
         RefreshUI();
     }
 
+    void Update() {
+        if (timer) {
+            timeElapsed += Time.deltaTime;
+        }
+    }
+
     void RefreshUI()
     {
         PlayerUI.instance.SetLives(playerLives);
         PlayerUI.instance.SetNumCoins(numCoins);
+    }
+
+    public void StopGameTimer() {
+        timer = false;
     }
 
     public void ProcessAcquireCoin()
@@ -76,6 +94,11 @@ public class GameSession : MonoBehaviour
         }
 
         RefreshUI();
+    }
+
+    public void ProcessEnemyDeath()
+    {
+        enemiesDefeated += 1;
     }
 
     public void ProcessPlayerDeath()

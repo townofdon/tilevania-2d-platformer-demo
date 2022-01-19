@@ -7,7 +7,7 @@ However, as the project scaled, I wanted to try more and more things such as:
 
 - Start / GameOver / Win Screens
 - Player Movement
-  - Coyote time (allowing a late-jump from a platform)
+  - Coyote time (allowing a late-jump from a platform - like Celeste)
   - Code-driven sprite animation state machine
   - Non-realistic gravity (player falls faster when returning to ground - this makes the game feel much more responsive and less "floaty")
   - Applied controller joystick dead zones
@@ -18,6 +18,21 @@ However, as the project scaled, I wanted to try more and more things such as:
 - Tracking player & enemy HP
 - Dynamic music scoring based on map "zones" - adding more and more tracks play in sync despite being queued up at different times (e.g. strings, bass, drums etc.)
 - Code-driven dynamic camera positioning
+  - Facing camera left or right based on player position (like Hollow Knight)
+- Particle effects!
+- Time-freezing during climactic events (like a boss intro in Hollow Knight)
+
+Things I wanted to do but weren't viable for an MVP:
+
+- Secondary weapon: fireball attack
+- Additional enemy types
+  - Skeleton archer (distance attack)
+  - Knight sentinel (melee attack)
+  - Bats (swarm attack)
+- Swimming mechanics & underwater levels (oxygen mgmt, eluding piranhas, etc.)
+- Add sprint special ability
+- Add dash or roll special ability
+- Additional tilemap graphics (using the same tilemap over and over got a little monotonous TBH)
 
 I pulled heavily from these resources as well:
 

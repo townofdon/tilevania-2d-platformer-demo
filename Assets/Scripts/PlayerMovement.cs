@@ -155,6 +155,16 @@ public class PlayerMovement : MonoBehaviour
         return true;
     }
 
+    public bool TakeHealth(float amount)
+    {
+        if (!isAlive) return false;
+
+        health = Mathf.Min(health + amount, 100f);
+        RefreshUI();
+
+        return true;
+    }
+
     public void Die()
     {
         isAlive = false;

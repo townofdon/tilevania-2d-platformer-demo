@@ -104,6 +104,7 @@ public class Enemy : MonoBehaviour
         isAlive = false;
         animator.speed = 0f;
         StartCoroutine(Remove());
+        GameSession.instance.ProcessEnemyDeath();
     }
 
     private void DeathSpin()

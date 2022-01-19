@@ -171,6 +171,13 @@ MonoBehaviour:
     loop: 0
     volumeVarianceMultiplier: 0.007
     pitchVarianceMultiplier: 0.008
+  - soundName: Potion
+    clip: {fileID: 8300000, guid: b8dbd089ff2c96c4691f46eb769ce2c5, type: 3}
+    volume: 0.393
+    pitch: 1.24
+    loop: 0
+    volumeVarianceMultiplier: 0.108
+    pitchVarianceMultiplier: 0.314
   musicTracks:
   - soundName: Strings
     clip: {fileID: 8300000, guid: 97885332924ba3b4c921c945fd94bd18, type: 3}
@@ -237,7 +244,7 @@ MonoBehaviour:
     pitchVarianceMultiplier: 0
   - soundName: BawzBass
     clip: {fileID: 8300000, guid: dc4bf11863982274bb1337b67c9dadc8, type: 3}
-    volume: 0.813
+    volume: 0.902
     pitch: 1
     loop: 1
     volumeVarianceMultiplier: 0
@@ -265,7 +272,7 @@ MonoBehaviour:
     pitchVarianceMultiplier: 0
   - soundName: SuxessBass
     clip: {fileID: 8300000, guid: 13968c9abf6b4264890709ea941c1eb8, type: 3}
-    volume: 0.816
+    volume: 0.905
     pitch: 1
     loop: 1
     volumeVarianceMultiplier: 0

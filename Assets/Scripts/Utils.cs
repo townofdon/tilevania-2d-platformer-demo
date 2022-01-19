@@ -83,4 +83,10 @@ public class Utils
         AppIntegrity.AssertPresent<GameObject>(child);
         return child;
     }
+
+    public static string ToTimeString(float t) {
+        string minutes = Mathf.Floor(t / 60).ToString("0");
+        string seconds = (t % 60).ToString("00");
+        return string.Format("{0}:{1}", minutes, seconds);
+    }
 }
