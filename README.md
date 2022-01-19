@@ -24,6 +24,7 @@ However, as the project scaled, I wanted to try more and more things such as:
 
 Things I wanted to do but weren't viable for an MVP:
 
+- Checkpoints & dynamic player spawning (instead of hard-reloading the scene for each level)
 - Secondary weapon: fireball attack
 - Additional enemy types
   - Skeleton archer (distance attack)
