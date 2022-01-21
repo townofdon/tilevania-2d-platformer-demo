@@ -414,12 +414,14 @@ MonoBehaviour:
   moveSpeed: 8
   moveSlowdown: 5
   climbSpeed: 7
+  climbSpeedX: 5
   jumpSpeed: 16
   maxFallSpeed: 1.5
   jumpFallMultiplier: 5
   jumpShortMultiplier: 20
+  jumpEarlyTime: 0.18
   jumpLateTime: 0.06
-  jumpShortTime: 0.05
+  jumpMinTime: 0.02
   canAirControl: 1
   followCam: {fileID: 0}
   OnJumpEvent:

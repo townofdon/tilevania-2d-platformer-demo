@@ -11,9 +11,14 @@ public class GameOverScreen : MonoBehaviour
         AudioManager.instance.StopMusic();
         AudioManager.instance.PlayTrackByName("BawzStrings");
         AudioManager.instance.PlayTrackByName("BawzBass");
+        AudioManager.instance.PlayTrackByName("BawzDrums");
+        AudioManager.instance.PlayTrackByName("BawzSquare");
+        AudioManager.instance.DisableTrackByName("BawzDrums");
+        AudioManager.instance.DisableTrackByName("BawzSquare");
         StartCoroutine(PlayDrums());
         StartCoroutine(PlaySquare());
-        Destroy(FindObjectOfType<PlayerUI>().gameObject);
+        PlayerUI.Remove();
+        PauseMenu.Remove();
     }
 
     public void ReturnToMainMenu() {
@@ -23,11 +28,11 @@ public class GameOverScreen : MonoBehaviour
 
     IEnumerator PlayDrums() {
         yield return new WaitForSecondsRealtime(OneBar * 8f);
-        AudioManager.instance.PlayTrackByName("BawzDrums");
+        AudioManager.instance.EnableTrackByName("BawzDrums");
     }
 
     IEnumerator PlaySquare() {
         yield return new WaitForSecondsRealtime(OneBar * 16f);
-        AudioManager.instance.PlayTrackByName("BawzSquare");
+        AudioManager.instance.EnableTrackByName("BawzSquare");
     }
 }

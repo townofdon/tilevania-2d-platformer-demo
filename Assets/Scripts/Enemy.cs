@@ -86,8 +86,6 @@ public class Enemy : MonoBehaviour
         timeLastDamaged = 0f;
         health -= amount;
 
-        Debug.Log("Enemy damage=" + amount + " health=" + health);
-
         if (health <= 0) {
             Die();
             DeathSpin();
@@ -247,7 +245,7 @@ public class Enemy : MonoBehaviour
                 Squished();
                 // player should bounce off of opponent
                 rbPlayer.velocity = Vector3.Reflect(rbPlayer.velocity, Vector3.up);
-                if (playerMovement.IsJumpPressed())
+                if (playerMovement.IsJumpPressed)
                 {
                     rbPlayer.velocity += Vector2.up * squishJumpSpeed;
                 }

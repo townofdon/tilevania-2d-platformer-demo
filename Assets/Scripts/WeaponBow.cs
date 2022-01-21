@@ -31,7 +31,8 @@ public class WeaponBow : MonoBehaviour
         AudioManager.instance.Play("GetWeapon");
 
         yield return new WaitForSecondsRealtime(1f);
-        Time.timeScale = 1f;
+
+        if (!PauseMenu.instance.IsPaused) Time.timeScale = 1f;
         playerMovement.StopParticleEffect();
         AudioManager.instance.UnPauseMusic();
 

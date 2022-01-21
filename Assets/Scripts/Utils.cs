@@ -4,7 +4,7 @@ public class Utils
 {
     public static void Elapse(ref float timer, float amount, float max = Mathf.Infinity)
     {
-        timer = Mathf.Min(timer + amount, max + Mathf.Epsilon);
+        timer = Mathf.Min(timer + amount, max + 1f);
     }
 
     public static Vector3 FlipX(Vector3 v) {

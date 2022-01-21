@@ -35,6 +35,9 @@ public class PlayerMovement : MonoBehaviour
     [Tooltip("How fast the player climbs vertically")]
     [SerializeField] float climbSpeed = 4f;
 
+    [Tooltip("How fast the player moves horizontally while climbing")]
+    [SerializeField] float climbSpeedX = 4f;
+
     [Tooltip("Amount of force added when the player jumps")]
     [SerializeField] private float jumpSpeed = 15.5f;
 
@@ -47,11 +50,14 @@ public class PlayerMovement : MonoBehaviour
     [Tooltip("Multiplier applied to achieve a shorter jump height - applied when player is rising vertically and lets go of the jump button before max height reached")]
     [SerializeField] private float jumpShortMultiplier = 1.5f;
 
+    [Tooltip("How early the player can press the jump button to trigger a jump")]
+    [Range(0, 0.2f)] [SerializeField] private float jumpEarlyTime = 0.20f;
+
     [Tooltip("How late the player can jump after leaving a surface")]
     [Range(0, 0.2f)] [SerializeField] private float jumpLateTime = 0.05f;
 
     [Tooltip("How long the jump button is held by default for short jumps")]
-    [Range(0, 0.5f)] [SerializeField] private float jumpShortTime = 0.2f;
+    [Range(0, 0.5f)] [SerializeField] private float jumpMinTime = 0.2f;
 
     [Tooltip("Whether or not a player can steer while jumping")]
     [SerializeField] private bool canAirControl = true;
@@ -86,10 +92,10 @@ public class PlayerMovement : MonoBehaviour
 
     // STATE - JUMPING
     bool isJumpPressed = false;
-    bool isJumpPressedEarly = false;
     bool isJumping = false;
     float jumpLateTimeElapsed = 0f;
-    float jumpShortTimeElapsed = 0f;
+    float jumpTimeElapsed = 0f;
+    float jumpPressTimeElapsed = 0f;
 
     // STATE - WEAPONS
     bool hasWeaponBow = false;
@@ -125,13 +131,8 @@ public class PlayerMovement : MonoBehaviour
 
     // PUBLIC METHODS
 
-    public bool IsJumpPressed() {
-        return isJumpPressed || isJumpPressedEarly;
-    }
-
-    public bool IsClimbing() {
-        return isClimbing;
-    }
+    public bool IsJumpPressed => isJumpPressed || jumpTimeElapsed < jumpEarlyTime;
+    public bool IsClimbing => isClimbing;
 
     public bool TakeDamage(float amount)
     {
@@ -195,6 +196,12 @@ public class PlayerMovement : MonoBehaviour
     {
         particles.Stop();
         particles.Clear();
+    }
+
+    public void CancelJump(){
+        isJumping = false;
+        isJumpPressed = false;
+        jumpTimeElapsed = jumpMinTime + 1f;
     }
 
     // PRIVATE METHODS
@@ -293,8 +300,6 @@ public class PlayerMovement : MonoBehaviour
     {
         PlayerUI.instance.SetHealth(health);
         PlayerUI.instance.SetHasWeapon(hasWeaponBow);
-
-        // TODO: update num coins
     }
 
     void HandleMove()
@@ -311,8 +316,6 @@ public class PlayerMovement : MonoBehaviour
             // see: https://docs.unity3d.com/ScriptReference/Mathf.Epsilon.html
             if (Mathf.Abs(moveInput.x) > Mathf.Epsilon)
             {
-                // rb.velocity = new Vector2(moveInput.x * moveSpeed, rb.velocity.y);
-
                 // only add speed if player is not already moving that direction
                 if (
                     moveInput.x > 0 && rb.velocity.x < moveSpeed ||
@@ -323,13 +326,15 @@ public class PlayerMovement : MonoBehaviour
                     rb.velocity = new Vector2(newSpeed, rb.velocity.y);
                 }
                 isRunning = true;
-                AudioManager.instance.Play("PlayerFootsteps");
             }
             else
             {
                 isRunning = false;
-                AudioManager.instance.Stop("PlayerFootsteps");
             }
+        }
+
+        if (isRunning && isGrounded && !isClimbing) {
+            AudioManager.instance.Play("PlayerFootsteps");
         } else {
             AudioManager.instance.Stop("PlayerFootsteps");
         }
@@ -337,7 +342,16 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleSlowdown()
     {
-        if (isAlive && isRunning || timeInvincibleAfterTakingDamageElapsed < 0.1f) return;
+        // cancel slowdown briefly after taking damage
+        if (timeInvincibleAfterTakingDamageElapsed < 0.1f) return;
+        // cancel slowdown when dead and not touching ground
+        if (!isAlive && !CheckIsGrounded()) return;
+        // apply damping when alive and running
+        if (isAlive && isRunning) {
+            // float newSpeed = rb.velocity.x + (-rb.velocity.x + moveSpeed * Mathf.Sign(rb.velocity.x)) * Time.fixedDeltaTime * 0.75f;
+            // rb.velocity = new Vector2(newSpeed, rb.velocity.y);
+            return;
+        }
 
         // add drag to slow down the player since we removed friction
         rb.velocity = new Vector2(rb.velocity.x - rb.velocity.x * moveSpeed * Time.fixedDeltaTime * (isAlive ? moveSlowdown : 1f), rb.velocity.y);
@@ -357,11 +371,6 @@ public class PlayerMovement : MonoBehaviour
             followCam.Follow = cameraCenter.transform;
             followCam.LookAt = cameraCenter.transform;
         }
-        // else if (orientationX >= 0)
-        // {
-        //     followCam.Follow = cameraLeft.transform;
-        //     followCam.LookAt = cameraLeft.transform;
-        // }
         else
         {
             followCam.Follow = cameraRight.transform;
@@ -394,7 +403,7 @@ public class PlayerMovement : MonoBehaviour
 
         // handle climb movement
         if (isClimbing) {
-            rb.velocity = new Vector2(moveInput.x * climbSpeed, moveInput.y * climbSpeed);
+            rb.velocity = new Vector2(moveInput.x * climbSpeedX, moveInput.y * climbSpeed);
             isClimbIdle = Mathf.Abs(moveInput.y) < Mathf.Epsilon && Mathf.Abs(moveInput.x) < Mathf.Epsilon;
         }
 
@@ -424,8 +433,8 @@ public class PlayerMovement : MonoBehaviour
             jumpLateTimeElapsed = Mathf.Min(jumpLateTimeElapsed + Time.fixedDeltaTime, jumpLateTime + 1f);
         }
 
-        // increment jump press time elapsed
-        jumpShortTimeElapsed = Mathf.Min(jumpShortTimeElapsed + Time.fixedDeltaTime, jumpShortTime + 1f);
+        Utils.Elapse(ref jumpTimeElapsed, Time.fixedDeltaTime, jumpMinTime);
+        Utils.Elapse(ref jumpPressTimeElapsed, Time.fixedDeltaTime, jumpEarlyTime);
 
         // handle early jump button release (shorter jump)
         if (!isJumpPressed) {
@@ -435,7 +444,7 @@ public class PlayerMovement : MonoBehaviour
         // handle initial jump impulse
         if (ShouldJump()) {
             isJumping = true;
-            jumpShortTimeElapsed = 0f;
+            jumpTimeElapsed = 0f;
             // rb.velocity += new Vector2(0f, jumpSpeed);
             rb.velocity = new Vector2(rb.velocity.x, Mathf.Max(jumpSpeed, jumpSpeed + rb.velocity.y));
             AudioManager.instance.Play("PlayerJump");
@@ -465,15 +474,17 @@ public class PlayerMovement : MonoBehaviour
         if (!isGrounded && !isClimbing) return false;
         // disallow double-jumps
         if (isJumping) return false;
-        if (isJumpPressedEarly) return true;
-        if (isJumpPressed) return true;
+        // player cannot jump again for a short window of time after a triggered jump
+        if (jumpTimeElapsed <= jumpEarlyTime) return false;
+        // only register the jump press if it was initiated within the appropriate time window
+        if (jumpPressTimeElapsed <= jumpEarlyTime) return true;
         return false;
     }
 
     void HandleFall() {
         if (!isClimbing) {
             // rising
-            if (rb.velocity.y > 0 && !isJumping && jumpShortTimeElapsed >= jumpShortTime)
+            if (rb.velocity.y > 0 && !isJumping && jumpTimeElapsed >= jumpMinTime)
             {
                 rb.velocity += Vector2.up
                     * Physics2D.gravity.y
@@ -485,6 +496,8 @@ public class PlayerMovement : MonoBehaviour
             // falling
             else if (rb.velocity.y < 0)
             {
+                // cancel jumping bool in order to keep gravity consistent when player rises from a bounce
+                isJumping = false;
                 rb.velocity += Vector2.up
                     * Physics2D.gravity.y
                     // grav accel constant is per second; multiply by the time slice to get the accel for this frame
@@ -567,12 +580,15 @@ public class PlayerMovement : MonoBehaviour
     {
         if (!isAlive) return;
         moveInput = value.Get<Vector2>();
+        moveInput.x = Mathf.Clamp(moveInput.x, -1f, 1f);
+        moveInput.y = Mathf.Clamp(moveInput.y, -1f, 1f);
     }
 
     void OnJump(InputValue value)
     {
         if (!isAlive) return;
         isJumpPressed = value.isPressed;
+        if (isJumpPressed) jumpPressTimeElapsed = 0f;
     }
 
     void OnFire(InputValue value)
@@ -596,5 +612,24 @@ public class PlayerMovement : MonoBehaviour
 
         // flip arrow
         instance.transform.localScale = transform.localScale;
+    }
+
+    void OnMoveX(InputValue value) {
+        if (!isAlive) return;
+        moveInput.x = value.Get<float>();
+        moveInput.x = Mathf.Clamp(moveInput.x, -1f, 1f);
+    }
+
+    void OnMoveY(InputValue value) {
+        if (!isAlive) return;
+        moveInput.y = value.Get<float>();
+        moveInput.y = Mathf.Clamp(moveInput.y, -1f, 1f);
+    }
+
+    void OnPauseGame(InputValue value) {
+        if (value.isPressed) {
+            PauseMenu.instance.TogglePause();
+            AudioManager.instance.Stop("PlayerFootsteps");
+        }
     }
 }

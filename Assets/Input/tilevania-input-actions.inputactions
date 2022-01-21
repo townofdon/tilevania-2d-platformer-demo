@@ -42,7 +42,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "ResetGame",
+                    "name": "PauseGame",
                     "type": "Button",
                     "id": "8514ba57-3539-4dfe-a1b0-7e54dfba35ea",
                     "expectedControlType": "Button",
@@ -57,7 +57,7 @@
                     "id": "978bfe49-cc26-4a3d-ab7b-7d7a29327403",
                     "path": "<Gamepad>/leftStick",
                     "interactions": "",
-                    "processors": "StickDeadzone",
+                    "processors": "StickDeadzone(max=1)",
                     "groups": ";Gamepad",
                     "action": "Move",
                     "isComposite": false,
@@ -186,7 +186,7 @@
                 },
                 {
                     "name": "",
-                    "id": "f7db1139-e119-449c-bca2-2ee04a92c321",
+                    "id": "f03aa7e1-f323-4ff0-b5f9-f1a615e55c84",
                     "path": "<Gamepad>/dpad",
                     "interactions": "",
                     "processors": "",
@@ -312,7 +312,18 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "ResetGame",
+                    "action": "PauseGame",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "5e2349e1-cba7-4268-b952-0ef27ea2b81e",
+                    "path": "<Gamepad>/start",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PauseGame",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

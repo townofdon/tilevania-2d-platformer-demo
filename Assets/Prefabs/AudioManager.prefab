@@ -44,6 +44,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18617a045e3769b49812a70581b84996, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  musicMix: {fileID: 5274853394591137794, guid: 43df4f6357b0c5e4ca65ca0819a90558, type: 2}
+  soundFXMix: {fileID: 8195514599648915913, guid: 43df4f6357b0c5e4ca65ca0819a90558, type: 2}
   sounds:
   - soundName: Coin
     clip: {fileID: 8300000, guid: b4bf109504d1a6943a17a298f240f7df, type: 3}
@@ -61,18 +63,18 @@ MonoBehaviour:
     pitchVarianceMultiplier: 0.079
   - soundName: GetWeapon
     clip: {fileID: 8300000, guid: 57e1827200a06bf439c3289dbabe14f2, type: 3}
-    volume: 0.35
+    volume: 0.362
     pitch: 0.7
     loop: 0
     volumeVarianceMultiplier: 0
     pitchVarianceMultiplier: 0
   - soundName: GumbaDamage
     clip: {fileID: 8300000, guid: a5ffa8d05b1cfd7438489da39242fcda, type: 3}
-    volume: 0.7
+    volume: 0.575
     pitch: 1
     loop: 0
-    volumeVarianceMultiplier: 0.034
-    pitchVarianceMultiplier: 0.233
+    volumeVarianceMultiplier: 0.049
+    pitchVarianceMultiplier: 0.257
   - soundName: GumbaDeath
     clip: {fileID: 8300000, guid: f331ca34c584f7a4a9e3199e698ecb7d, type: 3}
     volume: 0.485
@@ -178,6 +180,34 @@ MonoBehaviour:
     loop: 0
     volumeVarianceMultiplier: 0.108
     pitchVarianceMultiplier: 0.314
+  - soundName: MenuFocus
+    clip: {fileID: 8300000, guid: 1ac3f27e3d806ab41bc15e5209df3b83, type: 3}
+    volume: 0.8
+    pitch: 1
+    loop: 0
+    volumeVarianceMultiplier: 0.033
+    pitchVarianceMultiplier: 0.057
+  - soundName: MenuSelect
+    clip: {fileID: 8300000, guid: fda47637597f97042a8c28632d2f7d93, type: 3}
+    volume: 0.8
+    pitch: 1
+    loop: 0
+    volumeVarianceMultiplier: 0
+    pitchVarianceMultiplier: 0
+  - soundName: MenuPause
+    clip: {fileID: 8300000, guid: 31663e31e7d0f194ba1004c3383c4657, type: 3}
+    volume: 0.758
+    pitch: 1
+    loop: 0
+    volumeVarianceMultiplier: 0
+    pitchVarianceMultiplier: 0
+  - soundName: MenuSecondary
+    clip: {fileID: 8300000, guid: 1e43392d5460f1c44b37def5abd6cfcf, type: 3}
+    volume: 0.758
+    pitch: 1
+    loop: 0
+    volumeVarianceMultiplier: 0
+    pitchVarianceMultiplier: 0
   musicTracks:
   - soundName: Strings
     clip: {fileID: 8300000, guid: 97885332924ba3b4c921c945fd94bd18, type: 3}
@@ -216,7 +246,7 @@ MonoBehaviour:
     pitchVarianceMultiplier: 0
   - soundName: Whistle
     clip: {fileID: 8300000, guid: 2be7e61b407fbba4cb517b259a253415, type: 3}
-    volume: 0.7
+    volume: 0.611
     pitch: 1
     loop: 1
     volumeVarianceMultiplier: 0

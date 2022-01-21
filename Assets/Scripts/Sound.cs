@@ -1,6 +1,7 @@
 using System;
-using UnityEngine;
 using System.Collections;
+using UnityEngine;
+using UnityEngine.Audio;
 
 [System.Serializable]
 public class Sound
@@ -48,7 +49,7 @@ public class Sound
         source.pitch = Mathf.Min(Randomize(pitch, pitchVarianceMultiplier), 1f);
     }
 
-    public void setSource(AudioSource _source)
+    public void setSource(AudioSource _source, AudioMixerGroup mix)
     {
         source = _source;
         source.clip = clip;
@@ -56,6 +57,7 @@ public class Sound
         source.volume = volume;
         source.pitch = pitch;
         source.playOnAwake = false;
+        source.outputAudioMixerGroup = mix;
         AppIntegrity.AssertNonEmptyString(soundName);
         AppIntegrity.AssertPresent<AudioClip>(clip);
     }

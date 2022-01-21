@@ -1,8 +1,12 @@
 using System;
 using UnityEngine;
+using UnityEngine.Audio;
 
-public class AudioManager : MonoBehaviour
+public class AudioManager : MonoSingleton<AudioManager>
 {
+    [SerializeField] AudioMixerGroup musicMix;
+    [SerializeField] AudioMixerGroup soundFXMix;
+
     [SerializeField] Sound[] sounds;
     [SerializeField] Sound[] musicTracks;
 
@@ -12,44 +16,24 @@ public class AudioManager : MonoBehaviour
     [SerializeField] float musicTrackFadeInTime = 0.75f;
     [SerializeField] float musicTrackFadeOutTime = 0.15f;
 
-    // TODO: abstract out singleton pattern into a class extending MonoBehaviour
-    private static AudioManager _instance;
-    public static AudioManager instance {
-        get {
-            AppIntegrity.AssertPresent<AudioManager>(_instance);
-            return _instance;
-        }
-    }
-
     void Awake()
     {
-        // singleton pattern
-        if (_instance != null)
-        {
-            if (_instance != this)
-            {
-                Destroy(gameObject);
-            }
-            return;
-        }
-
-        DontDestroyOnLoad(gameObject);
-        _instance = this;
+        base.Awake();
 
         // set up audio sources for all sounds
         foreach (Sound s in sounds)
         {
-            s.setSource(gameObject.AddComponent<AudioSource>());
+            s.setSource(gameObject.AddComponent<AudioSource>(), soundFXMix);
         }
 
         // set up audio sources for all music tracks
         foreach (Sound s in musicTracks)
         {
-            s.setSource(gameObject.AddComponent<AudioSource>());
+            s.setSource(gameObject.AddComponent<AudioSource>(), musicMix);
         }
 
         // set up audio source for null sound
-        nullSound.setSource(gameObject.AddComponent<AudioSource>());
+        nullSound.setSource(gameObject.AddComponent<AudioSource>(), soundFXMix);
     }
 
     Sound FindSound(string name)

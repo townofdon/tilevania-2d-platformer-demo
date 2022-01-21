@@ -13,10 +13,6 @@ public class WinScreen : MonoBehaviour
     // 150 bpm - see: https://tuneform.com/tools/time-tempo-bpm-to-milliseconds-ms
     const float OneBar = 1.6f;
 
-    // cached
-    GameSession session;
-    PlayerUI playerUI;
-
     void Start() {
         AppIntegrity.AssertPresent<TextMeshProUGUI>(coins);
         AppIntegrity.AssertPresent<TextMeshProUGUI>(enemies);
@@ -24,12 +20,9 @@ public class WinScreen : MonoBehaviour
 
         WinMusic();
 
-        playerUI = FindObjectOfType<PlayerUI>();
-        session = FindObjectOfType<GameSession>();
-
-        if (playerUI != null) {
-            Destroy(playerUI.gameObject);
-        }
+        PlayerUI.Remove();
+        PauseMenu.Remove();
+        GameSession session = FindObjectOfType<GameSession>();
 
         if (session != null) {
             session.StopGameTimer();
@@ -41,6 +34,7 @@ public class WinScreen : MonoBehaviour
             enemies.text = "64";
             timeElapsed.text = Utils.ToTimeString(155f);
         }
+
     }
 
     void WinMusic() {

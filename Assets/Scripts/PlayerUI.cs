@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class PlayerUI : MonoBehaviour
+public class PlayerUI : MonoSingleton<PlayerUI>
 {
     [Header("Health")]
     [SerializeField] GameObject livesContainer;
@@ -19,26 +19,6 @@ public class PlayerUI : MonoBehaviour
 
     // cached
     Image[] lives;
-
-    // singleton
-    private static PlayerUI _instance;
-    public static PlayerUI instance {
-        get {
-            AppIntegrity.AssertPresent<PlayerUI>(_instance);
-            return _instance;
-        }
-    }
-
-    void Awake() {
-        // singleton pattern
-        if (_instance != null) {
-            if (_instance != this) { Destroy(gameObject); }
-            return;
-        }
-
-        DontDestroyOnLoad(gameObject);
-        _instance = this;
-    }
 
     void Start() {
         AppIntegrity.AssertPresent<GameObject>(livesContainer);

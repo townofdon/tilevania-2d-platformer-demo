@@ -137,6 +137,7 @@ public class GameSession : MonoBehaviour
             nextSceneIndex = 0;
         }
 
+        AudioManager.instance.Stop("PlayerFootsteps");
         SceneManager.LoadScene(nextSceneIndex);
         yield return null;
     }
@@ -145,6 +146,7 @@ public class GameSession : MonoBehaviour
     {
         yield return new WaitForSecondsRealtime(reloadLevelTimeDelay);
 
+        AudioManager.instance.Stop("PlayerFootsteps");
         SceneManager.LoadScene("GameOverScreen");
     }
 }
