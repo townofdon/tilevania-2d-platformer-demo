@@ -89,6 +89,7 @@ public class PlayerMovement : MonoBehaviour
     bool canClimb = false;
     bool isClimbing = false;
     bool isClimbIdle = false;
+    bool didReleaseLadder = false;
 
     // STATE - JUMPING
     bool isJumpPressed = false;
@@ -100,6 +101,9 @@ public class PlayerMovement : MonoBehaviour
     // STATE - WEAPONS
     bool hasWeaponBow = false;
     float timeFiring = 0f;
+
+    // STATE - SPAWNING
+    Vector3 lastSpawnPosition;
 
     // COMPONENTS
     SpriteRenderer spriteRenderer;
@@ -133,6 +137,7 @@ public class PlayerMovement : MonoBehaviour
 
     public bool IsJumpPressed => isJumpPressed || jumpTimeElapsed < jumpEarlyTime;
     public bool IsClimbing => isClimbing;
+    public bool DidReleaseLadder => didReleaseLadder;
 
     public bool TakeDamage(float amount)
     {
@@ -181,10 +186,24 @@ public class PlayerMovement : MonoBehaviour
         RefreshUI();
     }
 
-    public void AcquireWeaponBow()
+    public void Respawn()
     {
+        transform.position = lastSpawnPosition;
+        AudioManager.instance.Play("PlayerRespawn");
+        Initialize();
+    }
+
+    public void SetCheckpoint(Vector3 spawnPosition)
+    {
+        lastSpawnPosition = spawnPosition;
+    }
+
+    public bool AcquireWeaponBow()
+    {
+        if (hasWeaponBow) return false;
+
         hasWeaponBow = true;
-        RefreshUI();
+        return true;
     }
 
     public void PlayParticleEffect()
@@ -209,6 +228,8 @@ public class PlayerMovement : MonoBehaviour
     void Initialize()
     {
         jumpLateTimeElapsed = jumpLateTime + 1f;
+        jumpPressTimeElapsed = jumpEarlyTime + 1f;
+        jumpTimeElapsed = jumpEarlyTime + 1f;
         timeInvincibleAfterTakingDamageElapsed = timeInvincibleAfterTakingDamage + 1f;
         timeFiring = timeToShowFiringAnim + 1f;
         health = startHealth;
@@ -216,7 +237,14 @@ public class PlayerMovement : MonoBehaviour
         isRunning = false;
         isJumping = false;
         isClimbing = false;
+        isClimbIdle = false;
+        isJumpPressed = false;
+        didReleaseLadder = false;
         hasWeaponBow = false;
+        lastSpawnPosition = transform.position;
+        transform.rotation = new Quaternion(0f, 0f, 0f, 0f);
+        rb.freezeRotation = true;
+        moveInput = Vector2.zero;
 
         Time.timeScale = 1f;
 
@@ -296,7 +324,7 @@ public class PlayerMovement : MonoBehaviour
         HandleFall();
     }
 
-    void RefreshUI()
+    public void RefreshUI()
     {
         PlayerUI.instance.SetHealth(health);
         PlayerUI.instance.SetHasWeapon(hasWeaponBow);
@@ -398,13 +426,14 @@ public class PlayerMovement : MonoBehaviour
 
         // handle climb start
         if (canClimb && !isClimbing && !isJumpPressed) {
-            isClimbing = Mathf.Abs(moveInput.y) > Mathf.Epsilon;
+            isClimbing = didReleaseLadder ? moveInput.y > Mathf.Epsilon : Mathf.Abs(moveInput.y) > Mathf.Epsilon;
         }
 
         // handle climb movement
         if (isClimbing) {
             rb.velocity = new Vector2(moveInput.x * climbSpeedX, moveInput.y * climbSpeed);
             isClimbIdle = Mathf.Abs(moveInput.y) < Mathf.Epsilon && Mathf.Abs(moveInput.x) < Mathf.Epsilon;
+            didReleaseLadder = false;
         }
 
         // handle climb gravity
@@ -433,8 +462,15 @@ public class PlayerMovement : MonoBehaviour
             jumpLateTimeElapsed = Mathf.Min(jumpLateTimeElapsed + Time.fixedDeltaTime, jumpLateTime + 1f);
         }
 
-        Utils.Elapse(ref jumpTimeElapsed, Time.fixedDeltaTime, jumpMinTime);
-        Utils.Elapse(ref jumpPressTimeElapsed, Time.fixedDeltaTime, jumpEarlyTime);
+        // prevent considering ladders as ground
+        if (isClimbing) {
+            isGrounded = false;
+        }
+
+        // re-enable jumping && downward climbing
+        if (isGrounded) {
+            didReleaseLadder = false;
+        }
 
         // handle early jump button release (shorter jump)
         if (!isJumpPressed) {
@@ -443,12 +479,23 @@ public class PlayerMovement : MonoBehaviour
 
         // handle initial jump impulse
         if (ShouldJump()) {
-            isJumping = true;
-            jumpTimeElapsed = 0f;
-            // rb.velocity += new Vector2(0f, jumpSpeed);
-            rb.velocity = new Vector2(rb.velocity.x, Mathf.Max(jumpSpeed, jumpSpeed + rb.velocity.y));
-            AudioManager.instance.Play("PlayerJump");
+            // handle climbing and pressing down
+            if (isClimbing && moveInput.y < -0.25f) {
+                jumpTimeElapsed = 0f;
+                isJumping = true;
+                isClimbing = false;
+                didReleaseLadder = true;
+            } else {
+                // handle jump up
+                isJumping = true;
+                jumpTimeElapsed = 0f;
+                rb.velocity = new Vector2(rb.velocity.x, Mathf.Max(jumpSpeed, jumpSpeed + rb.velocity.y));
+                AudioManager.instance.Play("PlayerJump");
+            }
         }
+
+        Utils.Elapse(ref jumpTimeElapsed, Time.fixedDeltaTime, jumpMinTime);
+        Utils.Elapse(ref jumpPressTimeElapsed, Time.fixedDeltaTime, jumpEarlyTime);
     }
 
     bool CheckIsGrounded()
@@ -476,6 +523,8 @@ public class PlayerMovement : MonoBehaviour
         if (isJumping) return false;
         // player cannot jump again for a short window of time after a triggered jump
         if (jumpTimeElapsed <= jumpEarlyTime) return false;
+        // player cannot jump if they let go of a ladder
+        if (didReleaseLadder) return false;
         // only register the jump press if it was initiated within the appropriate time window
         if (jumpPressTimeElapsed <= jumpEarlyTime) return true;
         return false;

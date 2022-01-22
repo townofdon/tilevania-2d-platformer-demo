@@ -37,6 +37,7 @@ public class GameMenuManager : MonoBehaviour
     }
 
     public void QuitGame() {
+        AudioManager.instance.Play("MenuSecondary");
         Debug.Log("QUITTING GAME!");
         Application.Quit();
     }

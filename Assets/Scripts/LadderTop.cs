@@ -29,6 +29,6 @@ public class LadderTop : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        edgeCollider.enabled = !playerMovement.IsClimbing;
+        edgeCollider.enabled = !playerMovement.IsClimbing && !playerMovement.DidReleaseLadder;
     }
 }

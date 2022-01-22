@@ -123,8 +123,13 @@ public class GameSession : MonoBehaviour
     {
         yield return new WaitForSecondsRealtime(reloadLevelTimeDelay);
 
+        PlayerMovement playerMovement = FindObjectOfType<PlayerMovement>();
+        AppIntegrity.AssertPresent<PlayerMovement>(playerMovement);
+        playerMovement.Respawn();
         RefreshUI();
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+
+
+        // SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     IEnumerator LoadNextLevel()

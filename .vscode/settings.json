@@ -1,9 +1,7 @@
-﻿{
+{
     "files.exclude":
     {
         "**/.DS_Store":true,
-        "**/.git":true,
-        "**/.gitignore":true,
         "**/.gitmodules":true,
         "**/*.booproj":true,
         "**/*.pidb":true,
@@ -43,14 +41,13 @@
         "**/*.meta":true,
         "**/*.prefab":true,
         "**/*.unity":true,
-        "build/":true,
-        "Build/":true,
         "Library/":true,
         "library/":true,
         "obj/":true,
         "Obj/":true,
-        "ProjectSettings/":true,
+        "ProjectSettings/":false,
         "temp/":true,
         "Temp/":true
-    }
+    },
+    "path-intellisense.showHiddenFiles": true
 }

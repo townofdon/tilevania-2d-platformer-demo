@@ -124,6 +124,13 @@ MonoBehaviour:
     loop: 0
     volumeVarianceMultiplier: 0.022
     pitchVarianceMultiplier: 0.063
+  - soundName: PlayerRespawn
+    clip: {fileID: 8300000, guid: 959cb11e44d4c2b4994b48026f7669e3, type: 3}
+    volume: 0.584
+    pitch: 0.52
+    loop: 0
+    volumeVarianceMultiplier: 0.012
+    pitchVarianceMultiplier: 0.044
   - soundName: LevelComplete
     clip: {fileID: 8300000, guid: 4c4b6a82bf707564db9a49813788eaa0, type: 3}
     volume: 0.45

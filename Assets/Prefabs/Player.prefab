@@ -420,7 +420,7 @@ MonoBehaviour:
   jumpFallMultiplier: 5
   jumpShortMultiplier: 20
   jumpEarlyTime: 0.18
-  jumpLateTime: 0.06
+  jumpLateTime: 0.07
   jumpMinTime: 0.02
   canAirControl: 1
   followCam: {fileID: 0}

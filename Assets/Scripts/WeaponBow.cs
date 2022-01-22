@@ -10,6 +10,9 @@ public class WeaponBow : MonoBehaviour
     void Start()
     {
         playerMovement = FindObjectOfType<PlayerMovement>();
+        AppIntegrity.AssertPresent<PlayerMovement>(playerMovement);
+        AppIntegrity.AssertPresent<PauseMenu>(PauseMenu.instance);
+        AppIntegrity.AssertPresent<AudioManager>(AudioManager.instance);
     }
 
     void OnTriggerEnter2D(Collider2D other) {
@@ -18,7 +21,13 @@ public class WeaponBow : MonoBehaviour
         if (other.gameObject.tag == "Player")
         {
             acquired = true;
-            StartCoroutine(AcquireWeapon());
+
+            if (playerMovement.AcquireWeaponBow()) {
+                StartCoroutine(AcquireWeapon());
+            } else {
+                AudioManager.instance.Play("MenuSelect");
+                Destroy(gameObject);
+            }
         }
     }
 
@@ -27,16 +36,15 @@ public class WeaponBow : MonoBehaviour
         playerMovement.PlayParticleEffect();
         Time.timeScale = 0f;
         AudioManager.instance.PauseMusic();
-
         AudioManager.instance.Play("GetWeapon");
 
         yield return new WaitForSecondsRealtime(1f);
 
         if (!PauseMenu.instance.IsPaused) Time.timeScale = 1f;
         playerMovement.StopParticleEffect();
+        playerMovement.RefreshUI();
         AudioManager.instance.UnPauseMusic();
 
-        playerMovement.AcquireWeaponBow();
         Destroy(gameObject);
     }
 }
