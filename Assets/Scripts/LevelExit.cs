@@ -2,6 +2,9 @@ using UnityEngine;
 
 public class LevelExit : MonoBehaviour
 {
+    [SerializeField] string nextLevel = "";
+
+    [Header("Colors")]
     [SerializeField] Color colorOff = Color.red;
     [SerializeField] Color colorOn = Color.cyan;
 
@@ -58,7 +61,11 @@ public class LevelExit : MonoBehaviour
             levelCompleted = true;
             particles.Play();
             spriteRenderer.color = colorOn;
-            FindObjectOfType<GameSession>().ProcessLevelComplete();
+            if (nextLevel == "") {
+                FindObjectOfType<GameSession>().ProcessLevelComplete();
+            } else {
+                FindObjectOfType<GameSession>().ProcessLevelComplete(nextLevel);
+            }
 
             AudioManager.instance.Play("LevelComplete");
         }

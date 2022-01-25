@@ -95,11 +95,18 @@ public class BounceUp : MonoBehaviour
     }
 
     void TriggerImpulseUp(GameObject player) {
+        // note - don't forget to place CancelJump AFTER extraImpulse calculation ;)
+        float extraImpulse = playerMovement.IsJumpPressed ? jumpMultiplier : 1f;
         // gravity affects the player differently when they are considered jumping, so we need to cancel out a jump so that gravity is consistent
         // additionally, this disallows the player from lazily holding down the jump button
-        float extraImpulse = playerMovement.IsJumpPressed ? jumpMultiplier : 1f;
         playerMovement.CancelJump();
-        rbPlayer.AddForce(Vector2.up * bounceForce * extraImpulse, ForceMode2D.Impulse);
+        // see: https://answers.unity.com/questions/251619/rotation-to-direction-vector.html
+        Vector2 direction = (transform.rotation * Vector2.up).normalized;
+        rbPlayer.AddForce(direction * bounceForce * extraImpulse, ForceMode2D.Impulse);
+        if (Vector2.Angle(direction, Vector2.up) > 0.2f) {
+            // have the player take damage in order to free up horizontal movement, if any
+            playerMovement.TakeDamage(0f);
+        }
         if (bounceAnimation != null) StopCoroutine(bounceAnimation);
         bounceAnimation = StartCoroutine(AnimateBounceJiggle());
     }

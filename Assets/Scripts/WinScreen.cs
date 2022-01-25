@@ -8,6 +8,7 @@ public class WinScreen : MonoBehaviour
     // [SerializeField] TextMesh
     [SerializeField] TextMeshProUGUI coins;
     [SerializeField] TextMeshProUGUI enemies;
+    [SerializeField] TextMeshProUGUI bats;
     [SerializeField] TextMeshProUGUI timeElapsed;
 
     // 150 bpm - see: https://tuneform.com/tools/time-tempo-bpm-to-milliseconds-ms
@@ -16,6 +17,7 @@ public class WinScreen : MonoBehaviour
     void Start() {
         AppIntegrity.AssertPresent<TextMeshProUGUI>(coins);
         AppIntegrity.AssertPresent<TextMeshProUGUI>(enemies);
+        AppIntegrity.AssertPresent<TextMeshProUGUI>(bats);
         AppIntegrity.AssertPresent<TextMeshProUGUI>(timeElapsed);
 
         WinMusic();
@@ -28,10 +30,12 @@ public class WinScreen : MonoBehaviour
             session.StopGameTimer();
             coins.text = session.NumCoins.ToString();
             enemies.text = session.EnemiesDefeated.ToString();
+            bats.text = session.BatsDefeated.ToString();
             timeElapsed.text = Utils.ToTimeString(session.TimeElapsed);
         } else {
             coins.text = "42";
             enemies.text = "64";
+            bats.text = "33";
             timeElapsed.text = Utils.ToTimeString(155f);
         }
 

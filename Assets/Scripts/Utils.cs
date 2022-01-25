@@ -72,6 +72,7 @@ public class Utils
     // ```
     public static T GetRequiredComponent<T>(GameObject gameObject)
     {
+        AppIntegrity.AssertPresent<GameObject>(gameObject);
         T component = gameObject.GetComponent<T>();
         AppIntegrity.AssertPresent<T>(component);
         return component;

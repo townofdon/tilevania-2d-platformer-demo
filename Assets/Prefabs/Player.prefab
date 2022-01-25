@@ -409,7 +409,7 @@ MonoBehaviour:
   damagedBlinkOpacity: 0.7
   damagedBlinkColor: {r: 1, g: 0, b: 0, a: 1}
   arrow: {fileID: 1282779061621017584, guid: ccdb1c5eb34245847938e158e2b69587, type: 3}
-  arrowSpeed: 20
+  arrowSpeed: 30
   timeToShowFiringAnim: 0.25
   moveSpeed: 8
   moveSlowdown: 5

@@ -124,6 +124,13 @@ MonoBehaviour:
     loop: 0
     volumeVarianceMultiplier: 0.022
     pitchVarianceMultiplier: 0.063
+  - soundName: PlayerLand
+    clip: {fileID: 8300000, guid: 22343e581dd6fc54496daaea87e00df6, type: 3}
+    volume: 0.614
+    pitch: 0.71
+    loop: 0
+    volumeVarianceMultiplier: 0.057
+    pitchVarianceMultiplier: 0.233
   - soundName: PlayerRespawn
     clip: {fileID: 8300000, guid: 959cb11e44d4c2b4994b48026f7669e3, type: 3}
     volume: 0.584
@@ -215,6 +222,48 @@ MonoBehaviour:
     loop: 0
     volumeVarianceMultiplier: 0
     pitchVarianceMultiplier: 0
+  - soundName: BatAwake1
+    clip: {fileID: 8300000, guid: 8f9700ae19274824e933aaede2afcca0, type: 3}
+    volume: 0.692
+    pitch: 1
+    loop: 0
+    volumeVarianceMultiplier: 0.054
+    pitchVarianceMultiplier: 0.314
+  - soundName: BatAwake2
+    clip: {fileID: 8300000, guid: 375454f34627c934291b388d3848c133, type: 3}
+    volume: 0.698
+    pitch: 1
+    loop: 0
+    volumeVarianceMultiplier: 0.078
+    pitchVarianceMultiplier: 0.314
+  - soundName: BatWings
+    clip: {fileID: 8300000, guid: 8959ffd2e9db26949b5de74914566eb6, type: 3}
+    volume: 0.525
+    pitch: 0.62
+    loop: 1
+    volumeVarianceMultiplier: 0.037
+    pitchVarianceMultiplier: 0.118
+  - soundName: BatDeath1
+    clip: {fileID: 8300000, guid: 09e8fa2c29ef26749b409c344dbcb3bd, type: 3}
+    volume: 0.549
+    pitch: 0.72
+    loop: 0
+    volumeVarianceMultiplier: 0.037
+    pitchVarianceMultiplier: 0.269
+  - soundName: BatDeath2
+    clip: {fileID: 8300000, guid: 375454f34627c934291b388d3848c133, type: 3}
+    volume: 0.555
+    pitch: 0.43
+    loop: 0
+    volumeVarianceMultiplier: 0.064
+    pitchVarianceMultiplier: 0.293
+  - soundName: BatDamage
+    clip: {fileID: 8300000, guid: 9e9f3cb0c252c7146beef7306f8c566f, type: 3}
+    volume: 0.555
+    pitch: 0.93
+    loop: 0
+    volumeVarianceMultiplier: 0.064
+    pitchVarianceMultiplier: 0.293
   musicTracks:
   - soundName: Strings
     clip: {fileID: 8300000, guid: 97885332924ba3b4c921c945fd94bd18, type: 3}

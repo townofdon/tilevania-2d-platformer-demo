@@ -15,8 +15,10 @@ public class GameSession : MonoBehaviour
     int playerLives = 3;
     int numCoins = 0;
     int enemiesDefeated = 0;
+    int batsDefeated = 0;
     float timeElapsed = 0f;
     bool timer = true;
+    int currentSceneIndex = 0;
 
     // singleton
     private static GameSession _instance;
@@ -30,6 +32,7 @@ public class GameSession : MonoBehaviour
     public int PlayerLives => playerLives;
     public int NumCoins => numCoins;
     public int EnemiesDefeated => enemiesDefeated;
+    public int BatsDefeated => batsDefeated;
     public float TimeElapsed => timeElapsed;
 
     void Awake()
@@ -58,6 +61,7 @@ public class GameSession : MonoBehaviour
         numCoins = 0;
         enemiesDefeated = 0;
         timer = true;
+        currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
     }
 
     void Start()
@@ -101,6 +105,11 @@ public class GameSession : MonoBehaviour
         enemiesDefeated += 1;
     }
 
+    public void ProcessBatDeath()
+    {
+        batsDefeated += 1;
+    }
+
     public void ProcessPlayerDeath()
     {
         playerLives -= 1;
@@ -118,6 +127,10 @@ public class GameSession : MonoBehaviour
     {
         StartCoroutine(LoadNextLevel());
     }
+    public void ProcessLevelComplete(string sceneName)
+    {
+        StartCoroutine(LoadSpecificLevel(sceneName));
+    }
 
     IEnumerator ReloadLevel()
     {
@@ -127,20 +140,28 @@ public class GameSession : MonoBehaviour
         AppIntegrity.AssertPresent<PlayerMovement>(playerMovement);
         playerMovement.Respawn();
         RefreshUI();
+    }
 
+    IEnumerator LoadSpecificLevel(string sceneName)
+    {
+        yield return new WaitForSecondsRealtime(loadNextLevelTimeDelay);
 
-        // SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        AudioManager.instance.Stop("PlayerFootsteps");
+        SceneManager.LoadScene(sceneName);
+        yield return null;
     }
 
     IEnumerator LoadNextLevel()
     {
         yield return new WaitForSecondsRealtime(loadNextLevelTimeDelay);
 
-        int nextSceneIndex = SceneManager.GetActiveScene().buildIndex + 1;
+        int nextSceneIndex = currentSceneIndex + 1;
         if (nextSceneIndex == SceneManager.sceneCountInBuildSettings)
         {
             nextSceneIndex = 0;
         }
+
+        currentSceneIndex = nextSceneIndex;
 
         AudioManager.instance.Stop("PlayerFootsteps");
         SceneManager.LoadScene(nextSceneIndex);

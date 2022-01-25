@@ -63,7 +63,9 @@ public class Arrow : MonoBehaviour
         if (hit.collider == null) return;
         // if a dead enemy, ignore the collision
         Enemy enemy = hit.collider.gameObject.GetComponent<Enemy>();
-        if (!enemy.IsAlive) Physics2D.IgnoreCollision(capsule, hit.collider);
+        EnemyBat enemyBat = hit.collider.gameObject.GetComponent<EnemyBat>();
+        if (enemy != null && !enemy.IsAlive) Physics2D.IgnoreCollision(capsule, hit.collider);
+        if (enemyBat != null && !enemyBat.IsAlive) Physics2D.IgnoreCollision(capsule, hit.collider);
     }
 
     void OnCollisionEnter2D(Collision2D other) {
@@ -74,9 +76,15 @@ public class Arrow : MonoBehaviour
         }
 
         if (Utils.LayerMaskContainsLayer(enemiesLayerMask, other.gameObject.layer) && rb.velocity.magnitude > 0.1f) {
+            // TODO: create Enemy abstract class that others inherit from
             Enemy enemy = other.gameObject.GetComponent<Enemy>();
-            if (enemy.IsAlive) {
+            EnemyBat enemyBat = other.gameObject.GetComponent<EnemyBat>();
+            if (enemy != null && enemy.IsAlive) {
                 enemy.TakeDamage(rb.velocity.magnitude / 10f * damageAmount);
+                Destroy(gameObject);
+            }
+            else if (enemyBat != null && enemyBat.IsAlive) {
+                enemyBat.TakeDamage(rb.velocity.magnitude / 10f * damageAmount);
                 Destroy(gameObject);
             }
             else

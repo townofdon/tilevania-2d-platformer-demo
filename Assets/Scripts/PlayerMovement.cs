@@ -84,6 +84,7 @@ public class PlayerMovement : MonoBehaviour
     Vector2 moveInput;
     bool isRunning = false;
     bool isGrounded = false;
+    bool didPlayGroundedSound = false;
 
     // STATE - CLIMBING
     bool canClimb = false;
@@ -146,6 +147,7 @@ public class PlayerMovement : MonoBehaviour
 
         timeInvincibleAfterTakingDamageElapsed = 0;
         health -= amount;
+        isClimbing = false;
 
         if (health <= 0) {
             Die();
@@ -164,6 +166,7 @@ public class PlayerMovement : MonoBehaviour
     public bool TakeHealth(float amount)
     {
         if (!isAlive) return false;
+        if (health >= 100f) return false;
 
         health = Mathf.Min(health + amount, 100f);
         RefreshUI();
@@ -456,10 +459,16 @@ public class PlayerMovement : MonoBehaviour
         else if (jumpLateTimeElapsed > jumpLateTime)
         {
             isGrounded = false;
+            didPlayGroundedSound = false;
         }
         else
         {
             jumpLateTimeElapsed = Mathf.Min(jumpLateTimeElapsed + Time.fixedDeltaTime, jumpLateTime + 1f);
+        }
+
+        if (isGrounded && !didPlayGroundedSound) {
+            AudioManager.instance.Play("PlayerLand");
+            didPlayGroundedSound = true;
         }
 
         // prevent considering ladders as ground

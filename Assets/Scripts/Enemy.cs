@@ -200,7 +200,8 @@ public class Enemy : MonoBehaviour
 
         if (Utils.LayerMaskContainsLayer(enemiesLayerMask, other.gameObject.layer))
         {
-            if (!other.gameObject.GetComponent<Enemy>().IsAlive) {
+            Enemy enemy = other.gameObject.GetComponent<Enemy>();
+            if (enemy != null && !enemy.IsAlive) {
                 // TODO: make this into a utility - would be very useful
                 // see: https://answers.unity.com/questions/55711/cancel-a-collision.html
                 Physics2D.IgnoreCollision(capsule, other.gameObject.GetComponent<CapsuleCollider2D>());
